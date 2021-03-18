@@ -7,14 +7,18 @@ endif
 "|                                     \ Syntax /                                      |
 "+-------------------------------------------------------------------------------------+
 
+"------------------------------------\ Pre-Settings /-----------------------------------
+syntax iskeyword @,48-57,192-255,$,_
+syntax sync fromstart
+
 "---------------------------------------\ Header /--------------------------------------
 syn region HexowikiHeader start='\%^---$' end='^---$' contains=HexowikiHeaderItem keepend
 syn match  HexowikiHeaderItem '^\(title\|comments\|mathjax\|date\|tags\|categories\)' contained
 
 "------------------------------\ Original link or image /------------------------------
-syn region HexowikiLink1 matchgroup=HexowikiLinkDelimiter start='!\?\[\ze.\+' end='\](.\+)' contains=ALL keepend oneline concealends
-syn region HexowikiLink2 matchgroup=HexowikiLinkDelimiter start='!\?\[\](' end=')' contains=ALL keepend oneline concealends
-syn match  HexowikiRawLink '\(https\?\|localhost\|ftp\)://[^ ]\+' keepend
+syn region HexowikiLink1 matchgroup=HexowikiLinkDelimiter start='!\?\zs\[\ze.\{-1,}' end='\](.\{-1,})' contains=ALL,@NoSpell keepend oneline concealends
+syn region HexowikiLink2 matchgroup=HexowikiLinkDelimiter start='!\?\zs\[\](' end=')' contains=ALL,@NoSpell keepend oneline concealends
+syn match  HexowikiRawLink '\(https\?\|localhost\|ftp\)://[^ ]\+' contains=ALL,@NoSpell keepend
 
 "--------------------------------------\ Headings /-------------------------------------
 syn region HexowikiHeading1 matchgroup=HexowikiH1Delimiter start='^#\s*'      end='$' keepend oneline
@@ -28,12 +32,12 @@ syn region HexowikiHeading6 matchgroup=HexowikiH6Delimiter start='^######\s*' en
 syn match HexowikiComment '<!--.*-->'
 
 "-------------------------------------\ Code Block /------------------------------------
-" syn region HexowikiInlineCode matchgroup=HexowikiCodeDelimiter start="[^`]*\zs`\ze[^`]*" end="[^`]*\zs`\ze[^`]*" keepend oneline concealends
-syn region HexowikiCodeBlock  matchgroup=HexowikiCodeDelimiter start='^\s*\zs```\ze.\+$' end='^\s*\zs```$' keepend concealends
+syn region HexowikiInlineCode matchgroup=HexowikiCodeDelimiter start="[^`]\{-}\zs`\ze[^`]\{-1,}" end="[^`]\{-1,}\zs`\ze[^`]\{-}" contains=@NoSpell keepend oneline concealends
+syn region HexowikiCodeBlock  matchgroup=HexowikiCodeDelimiter start='^\s*\zs```\ze.\+$' end='^\s*\zs```$' contains=@NoSpell keepend concealends
 
 "----------------------------------------\ Math /---------------------------------------
-syn region HexowikiInlineMath matchgroup=HexowikiMathDelimiter start='[^$]*\zs\$\ze[^$]*' end='[^$]*\zs\$\ze[^$]*' keepend oneline concealends display
-syn region HexowikiMathBlock  matchgroup=HexowikiMathDelimiter start='^\s*\$\$$' end='^\s*\$\$$' keepend concealends display
+syn region HexowikiInlineMath matchgroup=HexowikiMathDelimiter start='[^$]*\zs\$\ze[^$]*' end='[^$]*\zs\$\ze[^$]*' contains=@NoSpell keepend oneline concealends display
+syn region HexowikiMathBlock  matchgroup=HexowikiMathDelimiter start='^\s*\$\$$' end='^\s*\$\$$' contains=@NoSpell keepend concealends display
 
 "---------------------------------------\ Emoji /---------------------------------------
 " syn match HexowikiEmoji ':[^:\u0020\u0009]\+:'
@@ -43,19 +47,21 @@ syn match HexowikiEmoji ':\w\+:'
 "----------------------------------\ Text declaration /---------------------------------
 " syn region HexowikiSub  matchgroup=HexowikiSubDelimiter start='[^~]\zs\~\ze[0-9A-z_-]\+' end='[0-9A-z_-]\+\zs\~\ze[^~]*' keepend oneline concealends
 " syn region HexowikiSup  matchgroup=HexowikiSupDelimiter start='\^\ze[0-9A-z_-]\+' end='[0-9A-z_-]\+\zs\^' keepend oneline concealends
-syn region HexowikiSub  matchgroup=HexowikiSubDelimiter start='[^~]*\zs\~\ze[^~]*' end='[^~]*\zs\~\ze[^~]*' contains=ALL keepend oneline concealends transparent
-syn region HexowikiSup  matchgroup=HexowikiSupDelimiter start='\^' end='\^' contains=ALL keepend oneline concealends transparent
-syn region HexowikiInsert matchgroup=HexowikiInsertDelimiter start='++' end='++' contains=ALL keepend oneline concealends transparent
-syn region HexowikiDelete matchgroup=HexowikiDeleteDelimiter start='\~\~' end='\~\~' contains=ALL keepend oneline concealends transparent
-syn region HexowikiItalic matchgroup=HexowikiItalicDelimiter start='[^*]*\zs\*\ze[^*]*' end='[^*]*\zs\*\ze[^*]*' contains=ALL keepend oneline concealends transparent
-syn region HexowikiBold matchgroup=HexowikiBoldDelimiter start='\*\*' end='\*\*' contains=ALL keepend oneline concealends transparent
+" syn region HexowikiSub  matchgroup=HexowikiSubDelimiter start='[^~]\{-}\zs\~\ze[^~]\{-}' end='[^~]\{-}\zs\~\ze[^~]\{-}' contains=ALL keepend oneline concealends
+syn match HexowikiSub '\~[^~ ]\+\~'hs=s+1,he=e-1
+" syn region HexowikiSup  matchgroup=HexowikiSupDelimiter start='\^\ze[^^ ]\{-1,}' end='^' contains=ALL keepend oneline concealends
+syn match HexowikiSup '\^[^^ ]\+\^'hs=s+1,he=e-1
+syn region HexowikiInsert matchgroup=HexowikiInsertDelimiter start='++' end='++' contains=ALL keepend oneline concealends
+syn region HexowikiDelete matchgroup=HexowikiDeleteDelimiter start='\~\~' end='\~\~' contains=ALL keepend oneline concealends
+syn region HexowikiItalic matchgroup=HexowikiItalicDelimiter start='[^*]\{-}\zs\*\ze[^*]\{-}' end='[^*]\{-}\zs\*\ze[^*]\{-}' contains=ALL keepend oneline concealends
+syn region HexowikiBold matchgroup=HexowikiBoldDelimiter start='\*\*' end='\*\*' contains=ALL keepend oneline concealends
 
 "---------------------------------------\ lists /---------------------------------------
-syn match HexowikiList1 '^\s*\zs\d\+\.\ze\s\+'
-syn match HexowikiList2 '^\s*\zs-\ze\s\+'
+syn match HexowikiList '^\s*\zs\(\d\+\.\|\d\+)\|-\|\*\|+\)\ze\s\+'
 
 "------------------------------------\ Tags plugin /------------------------------------
-syn region HexowikiTag matchgroup=HexowikiTagDelimiter start='^{%\s*' end='\s*%}$' keepend oneline concealends
+syn region HexowikiTag matchgroup=HexowikiTagDelimiter start='^{%\s*' end='\s*%}$' contains=@NoSpell keepend oneline concealends
+syn region HexowikiTagCodeBlock matchgroup=HexowikiTagCodeBlockDelimiter start='^{%\s*\z(codeblock\s\+.\{-1,}\)\s*%}$' end='{%\s*endcodeblock\s*%}' contains=@NoSpell keepend concealends
 
 "--------------------------------------\ Keywords /-------------------------------------
 syn keyword HexowikiKeyword TODO Same See toc TOC
@@ -111,11 +117,11 @@ hi HexowikiItalic cterm=italic gui=italic
 hi HexowikiBold cterm=bold gui=bold
 
 "---------------------------------------\ lists /---------------------------------------
-hi HexowikiList1 ctermfg=204 guifg=#E06C75
-hi HexowikiList2 ctermfg=204 guifg=#E06C75
+hi HexowikiList ctermfg=204 guifg=#E06C75
 
 "------------------------------------\ Tags plugin /------------------------------------
 hi HexowikiTag cterm=italic,underline gui=italic,underline
+hi link HexowikiTagCodeBlock HexowikiCodeBlock
 
 "--------------------------------------\ Keywords /-------------------------------------
 hi link HexowikiKeyword Keyword
