@@ -91,15 +91,11 @@ function! g:Create_link(mode)
         let base = visual_selection[0]
         echo visual_selection
         if visual_selection[1] == 0
-            let newline = '{% post_link ' . visual_selection[0] .
+            let newline = '{% post_link ' . substitute(visual_selection[0], '\s', '-', 'g') .
                         \ ' "' . visual_selection[0] . '" false %}' . line[visual_selection[2]+1 :]
-            " echo '{% post_link ' . visual_selection[0] .
-            "             \ ' "' . visual_selection[0] . '" false %}' . line[visual_selection[2]+1 :]
         else
-            let newline = line[: visual_selection[1]-1] . '{% post_link ' . visual_selection[0] .
+            let newline = line[: visual_selection[1]-1] . '{% post_link ' . substitute(visual_selection[0], '\s', '-', 'g') .
                         \ ' "' . visual_selection[0] . '" false %}' . line[visual_selection[2]+1 :]
-            " echo line[: visual_selection[1]-1] . '{% post_link ' . visual_selection[0] .
-            "             \ ' "' . visual_selection[0] . '" false %}' . line[visual_selection[2]+1 :]
         endif
     else
         let matchp = match(line, '\S')

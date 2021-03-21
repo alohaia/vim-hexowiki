@@ -69,6 +69,8 @@ syn match HexowikiList '^\s*\zs\(\d\+\.\|\d\+)\|-\|\*\|+\)\ze\s\+'
 "------------------------------------\ Tags plugin /------------------------------------
 syn region HexowikiTag matchgroup=HexowikiTagDelimiter start='{%\s*[a-z_]\+\s\+' end='\s*%}' contains=@NoSpell keepend oneline concealends
 syn region HexowikiTagCodeBlock matchgroup=HexowikiTagCodeBlockDelimiter start='^{%\s*\z(codeblock\s\+.\{-1,}\)\s*%}$' end='{%\s*endcodeblock\s*%}' contains=@NoSpell keepend concealends fold
+syn region HexowikiTagPostLink2 matchgroup=HexowikiTagPostLinkDelimiter start=+{%\s*post_link\s\++ end=+\s\+\(true\|false\)\s*%}+ contains=@NoSpell keepend oneline concealends
+syn region HexowikiTagPostLink1 matchgroup=HexowikiTagPostLinkDelimiter start=+{%\s*post_link\s\+\S\+\s\+['"]+ end=+['"]\s\+\(true\|false\)\s*%}+ contains=@NoSpell keepend oneline concealends
 
 "--------------------------------------\ Keywords /-------------------------------------
 syn keyword HexowikiKeyword TODO Same See toc TOC
@@ -82,9 +84,9 @@ hi link HexowikiHeader Define
 hi link HexowikiHeaderItem Keyword
 
 "------------------------------\ Original link or image /------------------------------
-hi HexowikiLink1 cterm=underline,bold gui=underline,bold
-hi HexowikiLink2 cterm=underline,bold gui=underline,bold
 hi HexowikiRawLink cterm=underline,bold gui=underline,bold
+hi link HexowikiLink1 HexowikiRawLink
+hi link HexowikiLink2 HexowikiRawLink
 
 "--------------------------------------\ Headings /-------------------------------------
 hi HexowikiHeading1 cterm=bold gui=bold ctermfg=9  guifg=#e08090
@@ -129,6 +131,8 @@ hi HexowikiList ctermfg=204 guifg=#E06C75
 "------------------------------------\ Tags plugin /------------------------------------
 hi HexowikiTag cterm=italic,underline gui=italic,underline
 hi link HexowikiTagCodeBlock HexowikiCodeBlock
+hi link HexowikiTagPostLink1 HexowikiRawLink
+hi link HexowikiTagPostLink2 HexowikiRawLink
 
 "--------------------------------------\ Keywords /-------------------------------------
 hi link HexowikiKeyword Keyword
