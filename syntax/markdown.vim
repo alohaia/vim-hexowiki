@@ -28,6 +28,10 @@ syn region HexowikiHeading4 matchgroup=HexowikiH4Delimiter start='^####\s\+'   e
 syn region HexowikiHeading5 matchgroup=HexowikiH5Delimiter start='^#####\s\+'  end='$' keepend oneline
 syn region HexowikiHeading6 matchgroup=HexowikiH6Delimiter start='^######\s\+' end='$' keepend oneline
 
+"-------------------------------------\ Reference /-------------------------------------
+syn match HexowikiReference '\(^>\s\+.*$\)\+' contains=ALL
+syn region HexowikiReferenceContext matchgroup=HexowikiReferenceDelimiter start='^>\s\+' end='$' oneline contains=ALL containedin=HexowikiReference
+
 "--------------------------------------\ Comment /--------------------------------------
 syn match HexowikiComment '<!--.*-->'
 
@@ -61,6 +65,7 @@ syn region HexowikiInsert matchgroup=HexowikiInsertDelimiter start='++' end='++'
 syn region HexowikiDelete matchgroup=HexowikiDeleteDelimiter start='\~\~' end='\~\~' contains=ALL keepend oneline concealends
 syn region HexowikiItalic matchgroup=HexowikiItalicDelimiter start='[^*]\{-}\zs\*\ze[^*]\{-}' end='[^*]\{-}\zs\*\ze[^*]\{-}' contains=ALL keepend oneline concealends
 syn region HexowikiBold matchgroup=HexowikiBoldDelimiter start='\*\*' end='\*\*' contains=ALL keepend oneline concealends
+syn region HexowikiHighlight matchgroup=HexowikiHighlightDelimiter start='==' end='==' contains=ALL keepend oneline concealends
 
 "---------------------------------------\ lists /---------------------------------------
 syn match HexowikiList '^\s*\zs\(\d\+\.\|\d\+)\|-\|\*\|+\)\ze\s\+'
@@ -102,6 +107,9 @@ hi HexowikiH4Delimiter ctermfg=204 guifg=#dddddd
 hi HexowikiH5Delimiter ctermfg=204 guifg=#dddddd
 hi HexowikiH6Delimiter ctermfg=204 guifg=#dddddd
 
+"-------------------------------------\ Reference /-------------------------------------
+hi HexowikiReferenceContext cterm=italic gui=italic ctermfg=59 guifg=#5C6370
+
 "--------------------------------------\ Comment /--------------------------------------
 hi link HexowikiComment Comment
 
@@ -127,6 +135,7 @@ hi HexowikiInsert cterm=underline gui=underline
 hi HexowikiDelete cterm=strikethrough gui=strikethrough
 hi HexowikiItalic cterm=italic gui=italic
 hi HexowikiBold cterm=bold gui=bold
+hi HexowikiHighlight cterm=standout gui=standout
 
 "---------------------------------------\ lists /---------------------------------------
 hi HexowikiList ctermfg=204 guifg=#E06C75
