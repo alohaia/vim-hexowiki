@@ -45,11 +45,10 @@ syn match HexowikiEmoji ':\w\+:'
 " syn region HexowikiEmoji matchgroup=HexowikiEmojiDelimiter start=':\ze[^ ]*:' end=':[^ ]*\zs:' keepend oneline concealends
 
 "---------------------------------------\ Define /--------------------------------------
-syn region HexowikiDefine start='^[^:].*\n:\s\+' end='^:.*\n\n' contains=HexowikiDefineHead,HexowikiDefineContent keepend fold
-syn match HexowikiDefineHead '^[^:].*\n\ze: ' contained
-syn region HexowikiDefineContent matchgroup=HexowikiDefineContentDelimiter start='^:\zs\s\+' end='$' contained keepend
-hi HexowikiDefineHead cterm=bold gui=bold
-hi link HexowikiDefineContent Comment
+" syn region HexowikiDefine start='^[^:].*\n:\s\+' end='^:.*\n[^:]*.*\n' contains=HexowikiDefineHead,HexowikiDefineContent keepend fold
+syn match HexowikiDefine '^[^:].*\n\(^:\s\+.*\n\)\+' contains=ALL keepend fold
+syn match HexowikiDefineHead '^[^:].*\n\ze: ' containedin=HexowikiDefine contains=ALL
+syn region HexowikiDefineContent matchgroup=HexowikiDefineContentDelimiter start='^:\zs\s\+' end='$' containedin=HexowikiDefine contains=ALL keepend
 
 "----------------------------------\ Text declaration /---------------------------------
 " syn region HexowikiSub  matchgroup=HexowikiSubDelimiter start='[^~]\zs\~\ze[0-9A-z_-]\+' end='[0-9A-z_-]\+\zs\~\ze[^~]*' keepend oneline concealends
@@ -116,6 +115,10 @@ hi HexowikiMathBlock  ctermfg=180 guifg=#E5C07B
 
 "---------------------------------------\ Emoji /---------------------------------------
 hi HexowikiEmoji cterm=standout gui=standout
+
+"---------------------------------------\ Define /--------------------------------------
+hi HexowikiDefineHead cterm=bold gui=bold
+hi link HexowikiDefineContent Comment
 
 "----------------------------------\ Text declaration /---------------------------------
 hi HexowikiSub cterm=italic,bold gui=italic,bold
