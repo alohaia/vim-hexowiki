@@ -33,15 +33,6 @@ augroup hexowiki
     autocmd BufNewFile *.md if s:if_at_home() | call s:init_file() | endif
 augroup END
 
-" Get file path from original link
-function! s:get_file(ori_link)
-    let match_list = matchlist(a:ori_link, '{%\s*post_link\s\+\([^ ]\+\).\{-1,}%}')
-    if len(match_list) == 0
-        return ''
-    endif
-    return g:hexowiki_home . match_list[1] . '.md'
-endfunction
-
 function! s:is_ascii(pos)
     let line = getline('.')
     if and(char2nr(line[col(a:pos)-1]), 128) == 0
@@ -75,17 +66,20 @@ endfunction
 xnoremap <C-a> :<C-u>echomsg Visual_inline()<CR>
 
 " Create a new link under the cursor
+"
+" Return:
+"   - Empty string if failed.
+"   - Name of new file if Succeed.
 function! g:Create_link(mode)
     let line = getline('.')
     let col = col('.') - 1
-    let newline = ''
 
     if char2nr(line[col]) == 32 || char2nr(line[col]) == 9 || char2nr(line[col]) == 0
         echo 'Not on any valid text'
         return ''
     endif
 
-    if a:mode == 'v' || a:mode == 'V' || a:mode == ''
+    if a:mode == 'v' || a:mode == 'V'
         " Visual mode
         let visual_selection = Visual_inline()
         let base = visual_selection[0]
@@ -120,38 +114,35 @@ function! g:Create_link(mode)
     return base != '' ? base . '.md' : ''
 endfunction
 
-
 " Create or follow ori_link link
 function! g:FollowLink() abort
     let link_pattern = '{%\s*post_link.\{-1,}%}'
     let line = getline('.')
     let col = col('.') - 1
 
-    if char2nr(line[col]) == 32 || char2nr(line[col]) == 9 || char2nr(line[col]) == 0
-        echo 'Not on any valid text'
-        return ''
-    endif
-
+    " If cursor is in a link, get the beginning and end of the link.
     let matchb = match(line, link_pattern)
     let matche = matchend(line, link_pattern)
     " echo line[matchb:matche-1]
     " check if cursor is in a link
-    while matchb > col || matche <= col
+    while matchb != -1 && (matchb > col || matche <= col)
         let matchb = match(line, link_pattern, matche)
-        " Not found
-        if matchb == -1
-            let new_file = g:Create_link(mode())
-            if new_file != '' && g:hexowiki_follow_after_create
-                execute 'edit ' . new_file
-            endif
-            return
-        endif
-        let matche = matchend(line[matchb:], link_pattern)
-        " echo matchb . ', ' matche
-        " echo line[matchb : matche-1]
+        let matche = matchend(line, link_pattern, matchb)
     endwhile
-    " echo 'edit ' . s:get_file(line[matchb : matche-1])
-    execute 'edit ' . s:get_file(line[matchb : matche-1])
+
+    " No link in current line
+    if matchb == -1
+        " Create a link
+        let new_file = g:Create_link(mode())
+        if new_file != '' && g:hexowiki_follow_after_create
+            execute 'edit ' . new_file
+        endif
+        return
+    endif
+
+    " Go to the the file specified by the link.
+    let match_list = matchlist(line[matchb : matche-1], '{%\s*post_link\s\+\([^ ]\+\).\{-1,}%}')
+    execute 'edit ' . g:hexowiki_home . match_list[1] . '.md'
 
 endfunction
 

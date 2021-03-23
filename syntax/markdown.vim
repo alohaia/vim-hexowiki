@@ -12,8 +12,9 @@ syntax iskeyword @,48-57,192-255,$,_
 syntax sync fromstart
 
 "---------------------------------------\ Header /--------------------------------------
-syn region HexowikiHeader start='\%^---$' end='^---$' contains=HexowikiHeaderItem keepend fold
+syn region HexowikiHeader start='\%^---$' end='^---$' contains=HexowikiHeaderItem,HexowikiHeaderList keepend fold
 syn match  HexowikiHeaderItem '^\(title\|comments\|mathjax\|date\|tags\|categories\)' contained
+syn region HexowikiHeaderList matchgroup=HexowikiHeaderListDelimiter start='^\s*-\s\+' end='$' containedin=HexowikiHeader
 
 "------------------------------\ Original link or image /------------------------------
 syn region HexowikiLink1 matchgroup=HexowikiLinkDelimiter start='!\?\zs\[\ze.\{-1,}' end='\](.\{-1,})' contains=ALL,@NoSpell keepend oneline concealends
@@ -86,6 +87,7 @@ syn keyword HexowikiKeyword TODO Same See toc TOC
 "---------------------------------------\ Header /--------------------------------------
 hi link HexowikiHeader Define
 hi link HexowikiHeaderItem Keyword
+hi link HexowikiHeaderListDelimiter HexowikiList
 
 "------------------------------\ Original link or image /------------------------------
 hi HexowikiRawLink cterm=underline,bold gui=underline,bold
