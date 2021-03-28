@@ -148,3 +148,6 @@ endfunction
 
 nnoremap <CR> <cmd>call FollowLink()<CR>
 xnoremap <CR> <ESC>gv<cmd>call FollowLink()<CR><ESC>
+
+inoremap <expr> ： getline('.') == '' ? ': ' : '：' 
+inoremap <expr> 》 getline('.') == '' ? '> ' : '》' 

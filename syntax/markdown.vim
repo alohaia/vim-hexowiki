@@ -14,11 +14,12 @@ syntax sync fromstart
 "---------------------------------------\ Header /--------------------------------------
 syn region HexowikiHeader start='\%^---$' end='^---$' contains=HexowikiHeaderItem,HexowikiHeaderList keepend fold
 syn match  HexowikiHeaderItem '^\(title\|comments\|mathjax\|date\|tags\|categories\)' contained
-syn region HexowikiHeaderList matchgroup=HexowikiHeaderListDelimiter start='^\s*-\s\+' end='$' containedin=HexowikiHeader
+syn region HexowikiHeaderList matchgroup=HexowikiHeaderListDelimiter start='^\s*-\s\+' end='$' contained containedin=HexowikiHeader
 
 "------------------------------\ Original link or image /------------------------------
 syn region HexowikiLink1 matchgroup=HexowikiLinkDelimiter start='!\?\zs\[\ze.\{-1,}' end='\](.\{-1,})' contains=ALL,@NoSpell keepend oneline concealends
 syn region HexowikiLink2 matchgroup=HexowikiLinkDelimiter start='!\?\zs\[\](' end=')' contains=ALL,@NoSpell keepend oneline concealends
+syn region HexowikiHtmlLink matchgroup=HexowikiHtmlLinkDelimiter start='<a.\{-}>' end='</a>' contains=ALL,@NoSpell keepend oneline concealends
 syn match  HexowikiRawLink '\(https\?\|localhost\|ftp\)://[^ ]\+' contains=ALL,@NoSpell keepend
 
 "--------------------------------\ Section and Heading /--------------------------------
@@ -65,7 +66,8 @@ syn match HexowikiSup '\^[^^ ]\+\^'hs=s+1,he=e-1
 syn region HexowikiInsert matchgroup=HexowikiInsertDelimiter start='++' end='++' contains=ALL keepend oneline concealends
 syn region HexowikiDelete matchgroup=HexowikiDeleteDelimiter start='\~\~' end='\~\~' contains=ALL keepend oneline concealends
 syn region HexowikiItalic matchgroup=HexowikiItalicDelimiter start='[^*]\{-}\zs\*\ze[^*]\{-}' end='[^*]\{-}\zs\*\ze[^*]\{-}' contains=ALL keepend oneline concealends
-syn region HexowikiBold matchgroup=HexowikiBoldDelimiter start='\*\*' end='\*\*' contains=ALL keepend oneline concealends
+" syn region HexowikiBold matchgroup=HexowikiBoldDelimiter start='\*\*' end='\*\*' contains=ALL keepend oneline concealends
+syn match HexowikiBold '\*\*[^*]\+\*\*' contains=ALL keepend
 syn region HexowikiHighlight matchgroup=HexowikiHighlightDelimiter start='==' end='==' contains=ALL keepend oneline concealends
 
 "---------------------------------------\ lists /---------------------------------------
@@ -93,6 +95,7 @@ hi link HexowikiHeaderListDelimiter HexowikiList
 hi HexowikiRawLink cterm=underline,bold gui=underline,bold
 hi link HexowikiLink1 HexowikiRawLink
 hi link HexowikiLink2 HexowikiRawLink
+hi link HexowikiHtmlLink HexowikiRawLink
 
 "--------------------------------------\ Headings /-------------------------------------
 hi HexowikiHeading1 cterm=bold gui=bold ctermfg=9  guifg=#e08090
