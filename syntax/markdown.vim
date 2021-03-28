@@ -17,8 +17,8 @@ syn match  HexowikiHeaderItem '^\(title\|comments\|mathjax\|date\|tags\|categori
 syn region HexowikiHeaderList matchgroup=HexowikiHeaderListDelimiter start='^\s*-\s\+' end='$' contained containedin=HexowikiHeader
 
 "------------------------------\ Original link or image /------------------------------
-syn region HexowikiLink1 matchgroup=HexowikiLinkDelimiter start='!\?\zs\[\ze.\{-1,}' end='\](.\{-1,})' contains=ALL,@NoSpell keepend oneline concealends
-syn region HexowikiLink2 matchgroup=HexowikiLinkDelimiter start='!\?\zs\[\](' end=')' contains=ALL,@NoSpell keepend oneline concealends
+syn region HexowikiLink matchgroup=HexowikiLinkDelimiter start='!\?\zs\[\ze.\{-1,}' end='\](.\{-1,})' contains=ALL,@NoSpell keepend oneline concealends
+syn region HexowikiLink matchgroup=HexowikiLinkDelimiter start='!\?\zs\[\](' end=')' contains=ALL,@NoSpell keepend oneline concealends
 syn region HexowikiHtmlLink matchgroup=HexowikiHtmlLinkDelimiter start='<a.\{-}>' end='</a>' contains=ALL,@NoSpell keepend oneline concealends
 syn match  HexowikiRawLink '\(https\?\|localhost\|ftp\)://[^ ]\+' contains=ALL,@NoSpell keepend
 
@@ -38,7 +38,10 @@ syn region HexowikiReferenceContext matchgroup=HexowikiReferenceDelimiter start=
 syn match HexowikiComment '<!--.*-->'
 
 "-------------------------------------\ Code Block /------------------------------------
-syn region HexowikiInlineCode matchgroup=HexowikiCodeDelimiter start="[^`]\{-}\zs`\ze[^`]\{-1,}" end="[^`]\{-1,}\zs`\ze[^`]\{-}" contains=@NoSpell keepend oneline concealends
+" syn region HexowikiInlineCode matchgroup=HexowikiCodeDelimiter start="[^`]\{-}\zs`\ze[^`]\{-1,}" end="[^`]\{-1,}\zs`\ze[^`]\{-}" contains=@NoSpell keepend oneline concealends
+syn region HexowikiInlineCode matchgroup=HexowikiCodeDelimiter start="`" end="`" contains=@NoSpell keepend oneline concealends
+syn region HexowikiInlineCode matchgroup=HexowikiCodeDelimiter start="`` \=" end=" \=``" contains=@NoSpell keepend oneline concealends
+syn region HexowikiInlineCode matchgroup=HexowikiCodeDelimiter start="``` \=" end=" \=```" contains=@NoSpell keepend oneline concealends
 syn region HexowikiCodeBlock  matchgroup=HexowikiCodeDelimiter start='^\s*\zs```\ze.\+$' end='^\s*\zs```$' contains=@NoSpell keepend concealends fold
 
 "----------------------------------------\ Math /---------------------------------------
@@ -76,8 +79,8 @@ syn match HexowikiList '^\s*\zs\(\d\+\.\|\d\+)\|-\|\*\|+\)\ze\s\+'
 "------------------------------------\ Tags plugin /------------------------------------
 syn region HexowikiTag matchgroup=HexowikiTagDelimiter start='{%\s*[a-z_]\+\s\+' end='\s*%}' contains=@NoSpell keepend oneline concealends
 syn region HexowikiTagCodeBlock matchgroup=HexowikiTagCodeBlockDelimiter start='^{%\s*\z(codeblock\s\+.\{-1,}\)\s*%}$' end='{%\s*endcodeblock\s*%}' contains=@NoSpell keepend concealends fold
-syn region HexowikiTagPostLink2 matchgroup=HexowikiTagPostLinkDelimiter start=+{%\s*post_link\s\++ end=+\s\+\(true\|false\)\s*%}+ contains=@NoSpell keepend oneline concealends
-syn region HexowikiTagPostLink1 matchgroup=HexowikiTagPostLinkDelimiter start=+{%\s*post_link\s\+\S\+\s\+['"]+ end=+['"]\s\+\(true\|false\)\s*%}+ contains=@NoSpell keepend oneline concealends
+syn region HexowikiTagPostLink matchgroup=HexowikiTagPostLinkDelimiter start=+{%\s*post_link\s\++ end=+\s\+\(true\|false\)\s*%}+ contains=@NoSpell keepend oneline concealends
+syn region HexowikiTagPostLink matchgroup=HexowikiTagPostLinkDelimiter start=+{%\s*post_link\s\+\S\+\s\+['"]+ end=+['"]\s\+\(true\|false\)\s*%}+ contains=@NoSpell keepend oneline concealends
 
 "--------------------------------------\ Keywords /-------------------------------------
 syn keyword HexowikiKeyword TODO Same See toc TOC
@@ -93,8 +96,7 @@ hi link HexowikiHeaderListDelimiter HexowikiList
 
 "------------------------------\ Original link or image /------------------------------
 hi HexowikiRawLink cterm=underline,bold gui=underline,bold
-hi link HexowikiLink1 HexowikiRawLink
-hi link HexowikiLink2 HexowikiRawLink
+hi link HexowikiLink HexowikiRawLink
 hi link HexowikiHtmlLink HexowikiRawLink
 
 "--------------------------------------\ Headings /-------------------------------------
@@ -148,8 +150,7 @@ hi HexowikiList ctermfg=204 guifg=#E06C75
 "------------------------------------\ Tags plugin /------------------------------------
 hi HexowikiTag cterm=italic,underline gui=italic,underline
 hi link HexowikiTagCodeBlock HexowikiCodeBlock
-hi link HexowikiTagPostLink1 HexowikiRawLink
-hi link HexowikiTagPostLink2 HexowikiRawLink
+hi link HexowikiTagPostLink HexowikiRawLink
 
 "--------------------------------------\ Keywords /-------------------------------------
 hi link HexowikiKeyword Keyword
