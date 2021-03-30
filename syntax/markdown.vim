@@ -55,7 +55,7 @@ syn match HexowikiEmoji ':\w\+:'
 
 "---------------------------------------\ Define /--------------------------------------
 " syn region HexowikiDefine start='^[^:].*\n:\s\+' end='^:.*\n[^:]*.*\n' contains=HexowikiDefineHead,HexowikiDefineContent keepend fold
-syn match HexowikiDefine '^[^:].*\n\(^:\s\+.*\n\)\+' contains=ALL keepend fold
+syn match HexowikiDefine '^[^:\u0020\u0009].*\n\(^:\s\+.*\n\)\+' contains=ALL keepend fold
 syn match HexowikiDefineHead '^[^:].*$' contained contains=ALL nextgroup=HexowikiDefineContent keepend
 syn region HexowikiDefineContent matchgroup=HexowikiDefineContentDelimiter start='^:\zs\s\+' end='$' containedin=HexowikiDefine contains=ALL keepend
 
