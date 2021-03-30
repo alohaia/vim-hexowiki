@@ -102,9 +102,9 @@ function! g:CreateLink(mode)
 
         let base = line[matchp : matchn - 1]
         if matchp == 0
-            let newline = '<a href="{% post_path ' . base . ' %}#">' . base. '"</a>' . line[matchn :]
+            let newline = '<a href="{% post_path ' . base . ' %}">' . base. '"</a>' . line[matchn :]
         else
-            let newline = line[: matchp-1] . '<a href="{% post_path ' . base . ' %}#">' . base. '"</a>' . line[matchn :]
+            let newline = line[: matchp-1] . '<a href="{% post_path ' . base . ' %}">' . base. '"</a>' . line[matchn :]
         endif
     endif
 
