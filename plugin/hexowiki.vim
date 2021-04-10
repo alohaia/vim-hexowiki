@@ -43,7 +43,8 @@ function! s:is_ascii(pos)
 endfunction
 
 " get the number of bytes of a character according to its first byte
-function! g:WcharLen(charfb)
+" get the number of bytes of a character according to its first byte
+function! s:wcharlen(charfb)
     let cmasks = [128, 224, 240, 248, 252, 254]
     let cvals  = [  0, 192, 224, 240, 248, 252]
     let char_nr = char2nr(a:charfb)
@@ -54,12 +55,22 @@ function! g:WcharLen(charfb)
     endfor
 endfunction
 
-function! g:VisualInline()
-    let vbegin = col("'<") - 1
-    let vend   = col("'>") - 1
-    if s:is_ascii("'>") != v:true
-        let vend += g:WcharLen(getline('.')[vend]) - 1
+function! VisualInline()
+    let line = getline('.')
+
+    let vbegin = col("v") - 1
+    let vend   = col(".") - 1
+    if vbegin > vend
+        let t = vend
+        let vend = vbegin
+        let vbegin = t
     endif
+
+    " adjusts vend if it's not refering an ASCII character
+    if and(char2nr(line[vend]), 128) != 0
+        let vend += s:wcharlen(getline('.')[vend]) - 1
+    endif
+
     return [getline('.')[vbegin:vend], vbegin, vend]
 endfunction
 
@@ -102,9 +113,9 @@ function! g:CreateLink(mode)
 
         let base = line[matchp : matchn - 1]
         if matchp == 0
-            let newline = '<a href="{% post_path ' . base . ' %}">' . base. '"</a>' . line[matchn :]
+            let newline = '<a href="{% post_path ' . base . ' %}">' . base. '</a>' . line[matchn :]
         else
-            let newline = line[: matchp-1] . '<a href="{% post_path ' . base . ' %}">' . base. '"</a>' . line[matchn :]
+            let newline = line[: matchp-1] . '<a href="{% post_path ' . base . ' %}">' . base. '</a>' . line[matchn :]
         endif
     endif
 
