@@ -15,20 +15,22 @@ syntax sync fromstart
 syn region HexowikiHeader start='\%^---$' end='^---$' contains=HexowikiHeaderItem,HexowikiHeaderList keepend fold
 syn match  HexowikiHeaderItem '^\(title\|comments\|mathjax\|date\|tags\|categories\)' contained
 syn region HexowikiHeaderList matchgroup=HexowikiHeaderListDelimiter start='^\s*-\s\+' end='$' contained containedin=HexowikiHeader
-
 "------------------------------\ Original link or image /------------------------------
 syn region HexowikiLink matchgroup=HexowikiLinkDelimiter start='!\?\zs\[\ze.\{-1,}' end='\](.\{-1,})' contains=ALL,@NoSpell keepend oneline concealends
 syn region HexowikiLink matchgroup=HexowikiLinkDelimiter start='!\?\zs\[\](' end=')' contains=ALL,@NoSpell keepend oneline concealends
 syn region HexowikiHtmlLink matchgroup=HexowikiHtmlLinkDelimiter start='<a.\{-}>' end='</a>' contains=ALL,@NoSpell keepend oneline concealends
 syn match  HexowikiRawLink '\(https\?\|localhost\|ftp\)://[^ ]\+' contains=ALL,@NoSpell keepend
 
-"--------------------------------\ Section and Heading /--------------------------------
+"--------------------------------------\ Heading /--------------------------------------
 syn region HexowikiHeading1 matchgroup=HexowikiH1Delimiter start='^#\s\+'      end='$' keepend oneline
 syn region HexowikiHeading2 matchgroup=HexowikiH2Delimiter start='^##\s\+'     end='$' keepend oneline
 syn region HexowikiHeading3 matchgroup=HexowikiH3Delimiter start='^###\s\+'    end='$' keepend oneline
 syn region HexowikiHeading4 matchgroup=HexowikiH4Delimiter start='^####\s\+'   end='$' keepend oneline
 syn region HexowikiHeading5 matchgroup=HexowikiH5Delimiter start='^#####\s\+'  end='$' keepend oneline
 syn region HexowikiHeading6 matchgroup=HexowikiH6Delimiter start='^######\s\+' end='$' keepend oneline
+syn match  HexowikiLine '^-----*$'
+syn match  HexowikiHeading2 '^.*$\n\ze-----*$' keepend
+
 
 "-------------------------------------\ Reference /-------------------------------------
 syn match HexowikiReference '\(^>\s\+.*$\)\+' contains=ALL
@@ -99,13 +101,14 @@ hi HexowikiRawLink cterm=underline,bold gui=underline,bold
 hi link HexowikiLink HexowikiRawLink
 hi link HexowikiHtmlLink HexowikiRawLink
 
-"--------------------------------------\ Headings /-------------------------------------
+"--------------------------------------\ Heading /--------------------------------------
 hi HexowikiHeading1 cterm=bold gui=bold ctermfg=9  guifg=#e08090
 hi HexowikiHeading2 cterm=bold gui=bold ctermfg=10 guifg=#80e090
 hi HexowikiHeading3 cterm=bold gui=bold ctermfg=12 guifg=#6090e0
 hi HexowikiHeading4 cterm=bold gui=bold ctermfg=15 guifg=#c0c0f0
 hi HexowikiHeading5 cterm=bold gui=bold ctermfg=15 guifg=#d5d5d5
 hi HexowikiHeading6 cterm=bold gui=bold ctermfg=15 guifg=#f9f9f9
+hi HexowikiLine     cterm=bold gui=bold ctermfg=59 guifg=#5C6370
 
 hi HexowikiH1Delimiter ctermfg=204 guifg=#dddddd
 hi HexowikiH2Delimiter ctermfg=204 guifg=#dddddd
