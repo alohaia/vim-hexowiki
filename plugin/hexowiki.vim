@@ -24,7 +24,7 @@ function! s:init_file() abort
     " TODO: detect page type
     let l:type = 'post'
 
-    call system('hexo new ' . l:type . ' ' . expand('%:t:r'))
+    call system('hexo new ' . l:type . ' "' . expand('%:t:r') . '"')
     edit
 endfunction
 
@@ -35,7 +35,7 @@ augroup END
 
 function! s:is_ascii(pos)
     let line = getline('.')
-    if and(char2nr(line[col(a:pos)-1]), 128) == 0
+    if and(char2nr(line[col(a:pos)-1]), 0x80) == 0
         return v:true
     else
         return v:false
@@ -45,8 +45,8 @@ endfunction
 " get the number of bytes of a character according to its first byte
 " get the number of bytes of a character according to its first byte
 function! s:wcharlen(charfb)
-    let cmasks = [128, 224, 240, 248, 252, 254]
-    let cvals  = [  0, 192, 224, 240, 248, 252]
+    let cmasks = [0x80, 0xe0, 0xf0, 0xf8, 0xfc, 0xfe]
+    let cvals  = [0x00, 0xc0, 0xe0, 0xf0, 0xf8, 0xfc]
     let char_nr = char2nr(a:charfb)
     for i in range(6)
         if and(char_nr, cmasks[i]) == cvals[i]
@@ -67,7 +67,7 @@ function! VisualInline()
     endif
 
     " adjusts vend if it's not refering an ASCII character
-    if and(char2nr(line[vend]), 128) != 0
+    if and(char2nr(line[vend]), 0x80) != 0
         let vend += s:wcharlen(getline('.')[vend]) - 1
     endif
 
@@ -129,16 +129,16 @@ function! g:FollowLink() abort
         \ '{%\s*post_link\s\+.\{-1,}%}',
         \ '<a\s\+href=[''"]{%\s\+post_path\s\+\(.\{-1,}\)\s*%}\(#.\{-1,}\)\?[''"]>.\{-}<\/a>',
         \ '\[.\{-1,}\](\(#.\{-1,}\))',
-        \ '!\?\[.\{-1,}\](\([^#]\{-1,}\))'
+        \ '!\?\[.\{-1,}\](\(.\{-1,}\))'
         \ ]
     let line = getline('.')
     let col = col('.') - 1
 
-    let link_type = 0
+    let link_type = -1
     let matchb = -1
     let matche = -1
+    " If cursor is on a link, get the beginning, end and type of the link.
     for link_type in range(4)
-        " If cursor is in a link, get the beginning and end of the link.
         let matchb = match(line, link_patterns[link_type])
         " No link in this line
         if matchb == -1
@@ -146,17 +146,21 @@ function! g:FollowLink() abort
         endif
         let matche = matchend(line, link_patterns[link_type])
 
-        " check if cursor is in a link
-        while matchb != -1 && (col < matchb || col >= matche)
+        " When the cursor is not on current link, try to find next link.
+        while col < matchb || col >= matche
             let matchb = match(line, link_patterns[link_type], matche)
             let matche = matchend(line, link_patterns[link_type], matchb)
+            if matchb == -1
+                " Try another link type
+                continue
+            endif
         endwhile
 
-        " find a link under cursor
-        if matchb != -1
-            break
-        endif
+        " Only when a link under the cursor is found, it hits here.
+        break
     endfor
+
+    echo 'link type: ' . link_type . "\n" . 'matchb: ' . matchb
 
     " No link in current line
     if matchb == -1
@@ -188,8 +192,9 @@ function! g:FollowLink() abort
 
 endfunction
 
-nnoremap <CR> <cmd>call FollowLink()<CR>
-xnoremap <CR> <ESC>gv<cmd>call FollowLink()<CR><ESC>
+au FileType markdown nnoremap <buffer> <CR> <cmd>call FollowLink()<CR>
+au FileType markdown xnoremap <buffer> <CR> <ESC>gv<cmd>call FollowLink()<CR><ESC>
 
-inoremap <expr> ： getline('.') == '' ? ': ' : '：' 
-inoremap <expr> 》 getline('.') == '' ? '> ' : '》' 
+au FileType markdown inoremap <buffer> <expr> ！ getline('.') == '' ? '!!! ' : '！'
+au FileType markdown inoremap <buffer> <expr> ： getline('.') == '' ? ': ' : '：'
+au FileType markdown inoremap <buffer> <expr> 》 getline('.') == '' ? '> ' : '》'
