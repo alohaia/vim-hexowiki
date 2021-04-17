@@ -160,7 +160,7 @@ function! g:FollowLink() abort
         break
     endfor
 
-    echo 'link type: ' . link_type . "\n" . 'matchb: ' . matchb
+    " echo 'link type: ' . link_type . "\n" . 'matchb: ' . matchb
 
     " No link in current line
     if matchb == -1
