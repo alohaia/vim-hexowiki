@@ -84,7 +84,7 @@ function! g:CreateLink(mode)
     let col = col('.') - 1
 
     if char2nr(line[col]) == 32 || char2nr(line[col]) == 9 || char2nr(line[col]) == 0
-        echo 'Not on any valid text'
+        " echo 'Not on any valid text, cannot create a link here.'
         return ''
     endif
 
@@ -135,35 +135,44 @@ function! g:FollowLink() abort
     let col = col('.') - 1
 
     let link_type = -1
-    let matchb = -1
-    let matche = -1
+    let matchb = 0
+    let matche = 0
     " If cursor is on a link, get the beginning, end and type of the link.
     for link_type in range(4)
-        let matchb = match(line, link_patterns[link_type])
-        " No link in this line
-        if matchb == -1
-            continue
-        endif
-        let matche = matchend(line, link_patterns[link_type])
-
+        " let matchb = match(line, link_patterns[link_type])
+        " " No link in this line
+        " if matchb == -1
+        "     continue
+        " endif
+        " let matche = matchend(line, link_patterns[link_type])
+        "
         " When the cursor is not on current link, try to find next link.
-        while col < matchb || col >= matche
+        while (col < matchb || col >= matche) && matchb != -1
             let matchb = match(line, link_patterns[link_type], matche)
-            let matche = matchend(line, link_patterns[link_type], matchb)
             if matchb == -1
                 " Try another link type
-                continue
+                break
             endif
+            let matche = matchend(line, link_patterns[link_type], matchb)
         endwhile
 
-        " Only when a link under the cursor is found, it hits here.
-        break
+
+        if matchb != -1
+            " Found
+            " echo 'Fonud: ' . line[matchb : matche-1]
+            break
+        else
+            " Not Found
+            " echo 'not link type ' . link_type . ': ' matchb
+            let matchb = 0
+            let matche = 0
+        endif
     endfor
 
     " echo 'link type: ' . link_type . "\n" . 'matchb: ' . matchb
 
     " No link in current line
-    if matchb == -1
+    if matchb == 0 && matche == 0
         " Create a link under cursor
         let new_file = g:CreateLink(mode())
         if new_file != '' && g:hexowiki_follow_after_create
