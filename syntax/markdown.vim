@@ -15,6 +15,7 @@ syntax sync fromstart
 syn region HexowikiHeader start='\%^---$' end='^---$' contains=HexowikiHeaderItem,HexowikiHeaderList keepend fold
 syn match  HexowikiHeaderItem '^\(title\|comments\|mathjax\|date\|tags\|categories\)' contained
 syn region HexowikiHeaderList matchgroup=HexowikiHeaderListDelimiter start='^\s*-\s\+' end='$' contained containedin=HexowikiHeader
+
 "------------------------------\ Original link or image /------------------------------
 syn region HexowikiLink matchgroup=HexowikiLinkDelimiter start='!\?\zs\[\ze.\{-1,}' end='\](.\{-1,})' contains=ALL,@NoSpell keepend oneline concealends
 syn region HexowikiLink matchgroup=HexowikiLinkDelimiter start='!\?\zs\[\](' end=')' contains=ALL,@NoSpell keepend oneline concealends
@@ -31,10 +32,9 @@ syn region HexowikiHeading6 matchgroup=HexowikiH6Delimiter start='^######\s\+' e
 syn match  HexowikiLine '^-----*$'
 syn match  HexowikiHeading2 '^.*$\n\ze-----*$' keepend
 
-
 "-------------------------------------\ Reference /-------------------------------------
-syn match HexowikiReference '\(^>\s\+.*$\)\+' contains=ALL
-syn region HexowikiReferenceContext matchgroup=HexowikiReferenceDelimiter start='^>\s\+' end='$' oneline contains=ALL containedin=HexowikiReference
+syn match HexowikiReference '^>\s\+.*$' contains=ALL
+" syn match HexowikiReferenceHead '^>' nextgroup=HexowikiReference conceal cchar=▊ keepend
 
 "--------------------------------------\ Comment /--------------------------------------
 syn match HexowikiComment '<!--.*-->'
@@ -57,9 +57,12 @@ syn match HexowikiEmoji ':\w\+:'
 
 "---------------------------------------\ Define /--------------------------------------
 " syn region HexowikiDefine start='^[^:].*\n:\s\+' end='^:.*\n[^:]*.*\n' contains=HexowikiDefineHead,HexowikiDefineContent keepend fold
-syn match HexowikiDefine '^[^:\u0020\u0009].*\n\(^:\s\+.*\n\)\+' contains=ALL keepend fold
+syn match HexowikiDefine '^[^:\u0020\u0009].*\n\(^:\s\+.*\n\)\+' contains=HexowikiDefineHead,HexowikiDefineContent keepend fold
 syn match HexowikiDefineHead '^[^:].*$' contained contains=ALL nextgroup=HexowikiDefineContent keepend
-syn region HexowikiDefineContent matchgroup=HexowikiDefineContentDelimiter start='^:\zs\s\+' end='$' containedin=HexowikiDefine contains=ALL keepend
+syn region HexowikiDefineContent matchgroup=HexowikiDefineContentDelimiter start='^:\zs\s\+' end='$' contains=ALL keepend
+
+"----------------------------------------\ Abbr /---------------------------------------
+syntax region HexowikiAbbr matchgroup=HexowikiAbbrDelimiter start='^\*\zs\[' end='\]\ze: ' keepend concealends oneline
 
 "----------------------------------\ Text declaration /---------------------------------
 " syn region HexowikiSub  matchgroup=HexowikiSubDelimiter start='[^~]\zs\~\ze[0-9A-z_-]\+' end='[0-9A-z_-]\+\zs\~\ze[^~]*' keepend oneline concealends
@@ -79,10 +82,10 @@ syn region HexowikiHighlight matchgroup=HexowikiHighlightDelimiter start='==' en
 syn match HexowikiList '^\s*\zs\(\d\+\.\|\d\+)\|-\|\*\|+\)\ze\s\+'
 
 "------------------------------------\ Tags plugin /------------------------------------
-syn region HexowikiTag matchgroup=HexowikiTagDelimiter start='{%\s*[a-z_]\+\s\+' end='\s*%}' contains=@NoSpell keepend oneline concealends
+syn region HexowikiTag matchgroup=HexowikiTagDelimiter start='{%\s*' end='\s*%}' contains=@NoSpell keepend oneline concealends
 syn region HexowikiTagCodeBlock matchgroup=HexowikiTagCodeBlockDelimiter start='^{%\s*\z(codeblock\s\+.\{-1,}\)\s*%}$' end='{%\s*endcodeblock\s*%}' contains=@NoSpell keepend concealends fold
-syn region HexowikiTagPostLink matchgroup=HexowikiTagPostLinkDelimiter start=+{%\s*post_link\s\++ end=+\s\+\(true\|false\)\s*%}+ contains=@NoSpell keepend oneline concealends
-syn region HexowikiTagPostLink matchgroup=HexowikiTagPostLinkDelimiter start=+{%\s*post_link\s\+\S\+\s\+['"]+ end=+['"]\s\+\(true\|false\)\s*%}+ contains=@NoSpell keepend oneline concealends
+syn region HexowikiTagPostLink matchgroup=HexowikiTagPostLinkDelimiter start=+{%\s*+ end=+\s\+\(true\|false\)\s*%}+ contains=@NoSpell keepend oneline concealends
+syn region HexowikiTagPostLink matchgroup=HexowikiTagPostLinkDelimiter start=+{%\s*\S\+\s\+['"]+ end=+['"]\s\+\(true\|false\)\s*%}+ contains=@NoSpell keepend oneline concealends
 
 "--------------------------------------\ Keywords /-------------------------------------
 syn keyword HexowikiKeyword TODO Same See toc TOC
@@ -118,7 +121,8 @@ hi HexowikiH5Delimiter ctermfg=204 guifg=#dddddd
 hi HexowikiH6Delimiter ctermfg=204 guifg=#dddddd
 
 "-------------------------------------\ Reference /-------------------------------------
-hi HexowikiReferenceContext cterm=italic gui=italic ctermfg=59 guifg=#5C6370
+hi HexowikiReference cterm=italic gui=italic ctermfg=59 guifg=#5C6370
+hi HexowikiReferenceHead ctermfg=59 guifg=#5C6370
 
 "--------------------------------------\ Comment /--------------------------------------
 hi link HexowikiComment Comment
@@ -137,6 +141,9 @@ hi HexowikiEmoji cterm=standout gui=standout
 "---------------------------------------\ Define /--------------------------------------
 hi HexowikiDefineHead cterm=bold gui=bold
 hi link HexowikiDefineContent Comment
+
+"----------------------------------------\ Abbr /---------------------------------------
+hi HexowikiAbbr cterm=bold,underline gui=bold,underline 
 
 "----------------------------------\ Text declaration /---------------------------------
 hi HexowikiSub cterm=italic,bold gui=italic,bold

@@ -1,17 +1,12 @@
 "---------------------------------------\ config /---------------------------------------
 let g:hexowiki_skeleton = {
-            \ 'post': '~/aloha.github.io/scaffolds/post.md',
-            \ 'page': '~/aloha.github.io/scaffolds/page.md',
-            \ 'draft': '~/aloha.github.io/scaffolds/draft.md'
+            \ 'post': '~/blog/scaffolds/post.md',
+            \ 'page': '~/blog/scaffolds/page.md',
+            \ 'draft': '~/blog/scaffolds/draft.md'
             \ }
 
-let g:hexowiki_home = '~/aloha.github.io/source/_posts/'
+let g:hexowiki_home = '~/blog/source/_posts/'
 let g:hexowiki_follow_after_create = 0
-
-function! s:if_at_home()
-    return expand('%:p:h') == expand(g:hexowiki_home) || expand('%:p:h') == expand(g:hexowiki_home)[:-2]
-endfunction
-
 
 "---------------------------------------\ plugin /---------------------------------------
 if exists('g:hexowiki_loaded') || &compatible
@@ -20,6 +15,12 @@ endif
 let g:hexowiki_loaded = 1
 
 "---------------------------------\ initialize a file /----------------------------------
+function! s:should_init()
+    let current_file = expand('%:p:h')
+    return current_file == expand(g:hexowiki_home)
+         \ || current_file == expand(g:hexowiki_home)[:-2]
+endfunction
+
 function! s:init_file() abort
     " TODO: detect page type
     let l:type = 'post'
@@ -30,7 +31,7 @@ endfunction
 
 augroup hexowiki
     au!
-    autocmd BufNewFile *.md if s:if_at_home() | call s:init_file() | endif
+    autocmd BufNewFile *.md if s:should_init() | call s:init_file() | endif
 augroup END
 
 function! s:is_ascii(pos)
@@ -203,7 +204,9 @@ endfunction
 
 au FileType markdown nnoremap <buffer> <CR> <cmd>call FollowLink()<CR>
 au FileType markdown xnoremap <buffer> <CR> <ESC>gv<cmd>call FollowLink()<CR><ESC>
+au FileType markdown echo "hello"
 
-au FileType markdown inoremap <buffer> <expr> ！ getline('.') == '' ? '!!! ' : '！'
-au FileType markdown inoremap <buffer> <expr> ： getline('.') == '' ? ': ' : '：'
-au FileType markdown inoremap <buffer> <expr> 》 getline('.') == '' ? '> ' : '》'
+au FileType markdown inoremap <buffer> <expr> ： col('.') == 1 ? ': ' : '：'
+au FileType markdown inoremap <buffer> <expr> :  col('.') == 1 ? ': ' : ':'
+au FileType markdown inoremap <buffer> <expr> 》 col('.') == 1 ? '> ' : '》'
+au FileType markdown inoremap <buffer> <expr> >  col('.') == 1 ? '> ' : '>'
