@@ -74,7 +74,7 @@ syn match HWEmoji ':\w\+:'
 
 "---------------------------------------\ Define /--------------------------------------
 " syn region HWDefine start='^[^:].*\n:\s\+' end='^:.*\n[^:]*.*\n' contains=HWDefineHead,HWDefineContent keepend fold
-syn region HWDefine start='^[^:~\u0020\u0009].*\n\?\s*[:~]' end='\ze\n\{2,}[^:~\u0020\u0009]' keepend fold transparent
+syn region HWDefine start='^[^:~\u0020\u0009].*\n\+\s*[:~]' end='\ze\n\{2,}[^:~\u0020\u0009]' keepend fold transparent
     \ contains=HWEmoji,HWKeyword,@CHWLink,@CHWInlineCM,@CHWTextDeclaration,@CHWInlineTag,
     \   HWReference,HWCodeBlock,HWMathBlock,HWList,@CHWTagBlock,
     \   HWDefineHead,HWDefineContent 
