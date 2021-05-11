@@ -48,11 +48,11 @@ syn match  HWLine '^-----*$'
 
 "-------------------------------------\ Reference /-------------------------------------
 syn region HWReference oneline
-    \ start='^>\s*' end='$'
+    \ start='^\s*>\s*' end='$'
     \ contains=HWEmoji,HWKeyword,@CHWLink,@CHWInlineCM,@CHWTextDeclaration,@CHWInlineTag,
     \   HWReference,HWCodeBlock,HWMathBlock,HWList,@CHWTagBlock,
     \   HWReferenceHead
-syn match  HWReferenceHead '^>' contains=HWReferenceHead nextgroup=HWReference contains=HWReferenceHead contained conceal cchar=▊
+syn match  HWReferenceHead '^\s*>'hs=e contains=HWReferenceHead nextgroup=HWReference contains=HWReferenceHead contained conceal cchar=▊
 
 "--------------------------------------\ Comment /--------------------------------------
 syn match HWComment '<!--.*-->'
@@ -149,14 +149,14 @@ syn match HWList '^\s*\zs\(\d\+\.\|\d\+)\|-\|\*\|+\)\ze\s\+'
     \ contains=HWEmoji,HWKeyword,@CHWLink,@CHWInlineCM,@CHWTextDeclaration,@CHWInlineTag
 
 "------------------------------------\ Tags plugin /------------------------------------
-syn region HWTag matchgroup=HWTagDelimiter contains=@NoSpell keepend oneline concealends
+syn region HWTag matchgroup=HWTagDelimiter contains=@NoSpell,HWTag oneline concealends
     \ start='{%\s*' end='\s*%}'
-syn region HWTagCodeBlock matchgroup=HWTagCodeBlockDelimiter contains=@NoSpell keepend concealends fold
+syn region HWTagCodeBlock matchgroup=HWTagCodeBlockDelimiter contains=@NoSpell concealends fold
     \ start='^{%\s*\z(codeblock\s\+.\{-1,}\)\s*%}$' end='{%\s*endcodeblock\s*%}'
-syn region HWTagPostLink matchgroup=HWTagPostLinkDelimiter contains=@NoSpell keepend oneline concealends
-    \ start=+{%\s*+ end=+\s\+\(true\|false\)\s*%}+
-syn region HWTagPostLink matchgroup=HWTagPostLinkDelimiter contains=@NoSpell keepend oneline concealends
-    \ start=+{%\s*\S\+\s\+['"]+ end=+['"]\s\+\(true\|false\)\s*%}+
+syn region HWTagPostLink matchgroup=HWTagPostLinkDelimiter contains=@NoSpell oneline concealends
+    \ start=+{%\s*post_link\s\++ end=+\s\+\(true\|false\)\s*%}+
+syn region HWTagPostLink matchgroup=HWTagPostLinkDelimiter contains=@NoSpell oneline concealends
+    \ start=+{%\s*post_link\+\s\+['"]+ end=+['"]\s\+\(true\|false\)\s*%}+
 
 syn cluster CHWInlineTag contains=HWTag,HWTagPostLink
 syn cluster CHWTagBlock  contains=HWTagCodeBlock
