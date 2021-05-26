@@ -192,7 +192,7 @@ function! g:FollowLink() abort
         endif
     elseif link_type == 2
         let m = matchlist(line[matchb:matche-1], link_patterns[link_type])
-        call search('#\+\s\+' . m[1][1:])
+        call search('#\+\s\+' . tolower(substitute(m[1][1:], '-', ' ', 'g')), 's')
     elseif link_type == 3
         let m = matchlist(line[matchb:matche-1], link_patterns[link_type])
         call system('xdg-open ' . m[1])
