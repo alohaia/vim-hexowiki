@@ -52,7 +52,7 @@ syn region HWReference oneline
     \ contains=HWEmoji,HWKeyword,@CHWLink,@CHWInlineCM,@CHWTextDeclaration,@CHWInlineTag,
     \   HWReference,HWCodeBlock,HWMathBlock,HWList,@CHWTagBlock,
     \   HWReferenceHead,
-    \   HWHtmlBr
+    \   @HWOthersInline
 syn match  HWReferenceHead '^\s*>'hs=e contains=HWReferenceHead nextgroup=HWReference contains=HWReferenceHead contained conceal cchar=▊
 
 "--------------------------------------\ Comment /--------------------------------------
@@ -87,14 +87,14 @@ syn region HWDefine keepend fold transparent fold
     \ contains=HWEmoji,HWKeyword,@CHWLink,@CHWInlineCM,@CHWTextDeclaration,@CHWInlineTag,HWItalic,
     \   HWReference,HWCodeBlock,HWMathBlock,HWList,@CHWTagBlock,
     \   HWDefineHead,HWDefineContent,
-    \   HWHtmlBr
+    \   @HWOthersInline
 syn match HWDefineHead '^[^:~\u0020\u0009].*$' contained keepend
     \ contains=HWEmoji,HWKeyword,@CHWLink,@CHWInlineCM,@CHWTextDeclaration,@CHWInlineTag
 syn region HWDefineContent matchgroup=HWDefineContentDelimiter contained keepend
     \ start='^\s*[:~]\s\+' end='\ze\n\s*[:~]\s\+'
     \ contains=HWEmoji,HWKeyword,@CHWLink,@CHWInlineCM,@CHWTextDeclaration,@CHWInlineTag,
     \   HWReference,HWCodeBlock,HWMathBlock,HWList,@CHWTagBlock,
-    \   HWHtmlBr
+    \   @HWOthersInline
 
 "----------------------------------------\ Abbr /---------------------------------------
 syn match HWAbbr '^\*\[.*\]: .*$' keepend
@@ -108,7 +108,7 @@ syn region HWAbbrHead matchgroup=HWAbbrHeadDelimiter contained keepend concealen
 syn region HWFooter matchgroup=HWFooterDelimiter keepend concealends oneline
     \ start='^\[\ze\^' end='\]\ze: .*$' skip='\\]'
     \ contains=HWEmoji,HWKeyword,@CHWLink,@CHWInlineCM,@CHWTextDeclaration,@CHWInlineTag,
-    \   HWHtmlBr
+    \   @HWOthersInline
 syn region HWFooterAnchor matchgroup=HWFooterAnchorDelimiter keepend concealends oneline
     \ start='\[\ze\^' end='\]\ze\([^:]\|\n\)' skip='\\]'
 
@@ -151,7 +151,7 @@ syn cluster CHWTextDeclaration contains=HWSub,HWSup,HWInsert,HWDelete,HWItalic,H
 "---------------------------------------\ lists /---------------------------------------
 syn match HWList '^\s*\zs\(\d\+\.\|\d\+)\|-\|\*\|+\)\ze\s\+'
     \ contains=HWEmoji,HWKeyword,@CHWLink,@CHWInlineCM,@CHWTextDeclaration,@CHWInlineTag,
-    \   HWHtmlBr
+    \   @HWOthersInline
 
 "------------------------------------\ Tags plugin /------------------------------------
 syn region HWTag matchgroup=HWTagDelimiter contains=@NoSpell,HWTag oneline concealends
@@ -254,5 +254,10 @@ hi link HWKeyword Keyword
 "+-------------------------------------------------------------------------------------+
 syn match HWHtmlBr '<br/\?>' conceal cchar=⤶      " ⤶↩↵
 hi link HWHtmlBr Comment
+
+syn match HWEscape '\\\ze.' conceal
+hi link HWEscape Comment
+
+syn cluster HWOthersInline contains=HWHtmlBr,HWEscape
 
 let b:current_syntax = 'markdown'

@@ -128,8 +128,8 @@ endfunction
 function! g:FollowLink() abort
     let link_patterns = [
         \ '{%\s*post_link\s\+.\{-1,}%}',
-        \ '<a\s\+href=[''"]{%\s\+post_path\s\+\(.\{-1,}\)\s*%}\(#.\{-1,}\)\?[''"]>.\{-}<\/a>',
-        \ '\[.\{-1,}\](\(#.\{-1,}\))',
+        \ '<a\s\+href=[''"]{%\s\+post_path\s\+\(.\{-1,}\)\s*%}\(?highlight=.\{-}\)*\(#.\{-1,}\)\?[''"]>.\{-}<\/a>',
+        \ '\[.\{-1,}\](\(?highlight=.\{-}\)*\(#.\{-1,}\))',
         \ '!\?\[.\{-1,}\](\(.\{-1,}\))'
         \ ]
     let line = getline('.')
@@ -187,12 +187,16 @@ function! g:FollowLink() abort
     elseif link_type == 1
         let m = matchlist(line[matchb:matche-1], link_patterns[link_type])
         execute 'edit ' . m[1] . '.md'
-        if m[2] != ''
-            call search('#\+\s\+' . m[2][1:])
+        if m[3] != ''
+            call search('#\+\s\+' . m[3][1:])
         endif
     elseif link_type == 2
         let m = matchlist(line[matchb:matche-1], link_patterns[link_type])
-        call search('#\+\s\+' . tolower(substitute(m[1][1:], '-', ' ', 'g')), 's')
+        if m[2][1:] == "more"
+            call search("<!-- more -->", 's')
+        endif
+        " echo tolower(substitute(m[2][1:], '-', ' ', 'g'))
+        call search('#\+\s\+' . tolower(substitute(m[2][1:], '-', ' ', 'g')), 's')
     elseif link_type == 3
         let m = matchlist(line[matchb:matche-1], link_patterns[link_type])
         call system('xdg-open ' . m[1])
@@ -204,7 +208,6 @@ endfunction
 
 au FileType markdown nnoremap <buffer> <CR> <cmd>call FollowLink()<CR>
 au FileType markdown xnoremap <buffer> <CR> <ESC>gv<cmd>call FollowLink()<CR><ESC>
-au FileType markdown echo "hello"
 
 au FileType markdown inoremap <buffer> <expr> ： col('.') == 1 ? ': ' : '：'
 au FileType markdown inoremap <buffer> <expr> :  col('.') == 1 ? ': ' : ':'
