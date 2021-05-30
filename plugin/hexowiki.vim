@@ -124,14 +124,16 @@ function! g:CreateLink(mode)
     return base != '' ? base . '.md' : ''
 endfunction
 
+
+let s:link_patterns = [
+    \ '{%\s*post_link\s\+.\{-1,}%}',
+    \ '<a\s\+href=[''"]{%\s\+post_path\s\+\(.\{-1,}\)\s*%}\(?highlight=.\{-}\)*\(#.\{-1,}\)\?[''"]>.\{-}<\/a>',
+    \ '\[.\{-1,}\](\(?highlight=.\{-}\)*\(#.\{-1,}\))',
+    \ '!\?\[.\{-1,}\](\(.\{-1,}\))'
+    \ ]
+
 " Create or follow ori_link link
 function! g:FollowLink() abort
-    let link_patterns = [
-        \ '{%\s*post_link\s\+.\{-1,}%}',
-        \ '<a\s\+href=[''"]{%\s\+post_path\s\+\(.\{-1,}\)\s*%}\(?highlight=.\{-}\)*\(#.\{-1,}\)\?[''"]>.\{-}<\/a>',
-        \ '\[.\{-1,}\](\(?highlight=.\{-}\)*\(#.\{-1,}\))',
-        \ '!\?\[.\{-1,}\](\(.\{-1,}\))'
-        \ ]
     let line = getline('.')
     let col = col('.') - 1
 
@@ -140,21 +142,21 @@ function! g:FollowLink() abort
     let matche = 0
     " If cursor is on a link, get the beginning, end and type of the link.
     for link_type in range(4)
-        " let matchb = match(line, link_patterns[link_type])
+        " let matchb = match(line, s:link_patterns[link_type])
         " " No link in this line
         " if matchb == -1
         "     continue
         " endif
-        " let matche = matchend(line, link_patterns[link_type])
+        " let matche = matchend(line, s:link_patterns[link_type])
         "
         " When the cursor is not on current link, try to find next link.
         while (col < matchb || col >= matche) && matchb != -1
-            let matchb = match(line, link_patterns[link_type], matche)
+            let matchb = match(line, s:link_patterns[link_type], matche)
             if matchb == -1
                 " Try another link type
                 break
             endif
-            let matche = matchend(line, link_patterns[link_type], matchb)
+            let matche = matchend(line, s:link_patterns[link_type], matchb)
         endwhile
 
 
@@ -185,20 +187,20 @@ function! g:FollowLink() abort
         let match_list = matchlist(line[matchb : matche-1], '{%\s*post_link\s\+\([^\u0020\u0009]\+\).\{-1,}%}')
         execute 'edit ' . g:hexowiki_home . match_list[1] . '.md'
     elseif link_type == 1
-        let m = matchlist(line[matchb:matche-1], link_patterns[link_type])
+        let m = matchlist(line[matchb:matche-1], s:link_patterns[link_type])
         execute 'edit ' . m[1] . '.md'
         if m[3] != ''
             call search('#\+\s\+' . m[3][1:])
         endif
     elseif link_type == 2
-        let m = matchlist(line[matchb:matche-1], link_patterns[link_type])
+        let m = matchlist(line[matchb:matche-1], s:link_patterns[link_type])
         if m[2][1:] == "more"
             call search("<!-- more -->", 's')
         endif
         " echo tolower(substitute(m[2][1:], '-', ' ', 'g'))
         call search('#\+\s\+' . tolower(substitute(m[2][1:], '-', ' ', 'g')), 's')
     elseif link_type == 3
-        let m = matchlist(line[matchb:matche-1], link_patterns[link_type])
+        let m = matchlist(line[matchb:matche-1], s:link_patterns[link_type])
         call system('xdg-open ' . m[1])
     else
         echo '[g:FollowLink] undefined'
@@ -206,8 +208,30 @@ function! g:FollowLink() abort
 
 endfunction
 
+function! FindLink(foreward)
+    if a:foreward == 1
+        let flags = 'n'
+    else
+        let flags = 'bn'
+    endif
+    let [lnum, col] = [0, 0]
+    for pattern in s:link_patterns
+        let [l, c] = searchpos(pattern, flags)
+        if lnum == 0 || l != 0 && l <= lnum && c < col
+            let [lnum, col] = [l, c]
+            " echomsg 'store ' . lnum ', ' . col
+        endif
+    endfor
+    " echomsg 'goto ' . lnum . ', ' . col
+    call cursor(lnum, col)
+endfunction
+
+
 au FileType markdown nnoremap <buffer> <CR> <cmd>call FollowLink()<CR>
 au FileType markdown xnoremap <buffer> <CR> <ESC>gv<cmd>call FollowLink()<CR><ESC>
+
+au FileType markdown nnoremap <buffer> <C-l><C-n> <cmd>call FindLink(1)<CR>
+au FileType markdown nnoremap <buffer> <C-l><C-p> <cmd>call FindLink(0)<CR>
 
 au FileType markdown inoremap <buffer> <expr> ： col('.') == 1 ? ': ' : '：'
 au FileType markdown inoremap <buffer> <expr> :  col('.') == 1 ? ': ' : ':'
