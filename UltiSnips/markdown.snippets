@@ -125,8 +125,7 @@ snippet anc "anchor" i
 endsnippet
 
 snippet '^\*' "Abbr" rA
-*[${1:abbr}]: ${2:description}
-$0
+*[${1:abbr}]: ${2:description}$0
 endsnippet
 
 
@@ -134,21 +133,23 @@ endsnippet
 # See: https://hexo.io/zh-cn/docs/tag-plugins
 
 snippet tag "primary tag" iw
-{% ${1:tag} ${2:${VISUAL}} %}$0
+{% ${1:tag} ${2:${VISUAL}$0 }%}
+endsnippet
+
+snippet lab "Hexo next label" iw
+{% label ${1:default}@${2:${VISUAL:text}}$0 %}
 endsnippet
 
 snippet ref "Hexo reference" i
-{% post_link ${1:${VISUAL}} "${2:$1}" false %}$0
+{% post_link ${1:${VISUAL}} "${2:$1}" false$0 %}
 endsnippet
 
 snippet inc "Hexo include code" bwA
-{% include_code ${6:$1} lang:$2 ${3:from:${4:1} to:$5 }${1:${VISUAL}} %}
-$0
+{% include_code ${6:$1} lang:$2 ${3:from:${4:1} to:$5$0 }${1:${VISUAL}} %}
 endsnippet
 
 snippet ifm "Hexo iframe" bwA
-{% iframe ${1:url}${2: ${3:width} ${4:height} }%}
-$0
+{% iframe ${1:url}${2: ${3:width} ${4:height}$0 }%}
 endsnippet
 
 snippet img "Hexo image" bwA
@@ -161,7 +162,7 @@ snippet asp "Hexo asset resources" i
 endsnippet
 
 snippet asi "Hexo asset resources" bwA
-{% asset_img "${1:${VISUAL}}.png" ${2:${3:width} ${4:height} }${5:"${6:$1}'${7:$6}'"} %}
+{% asset_img "${1:${VISUAL}}.png" ${2:${3:width} ${4:height} }${5:"${6:$1}'${7:$6}$0'"} %}
 endsnippet
 
 snippet asl "Hexo asset link" i
@@ -170,27 +171,24 @@ endsnippet
 
 snippet at "align text block" bw
 {% aligntext ${1:center}@${2:classes}%}
-{% endaligntext %}
 $0
+{% endaligntext %}
 endsnippet
 
 snippet tc "table caption" bw
-{% tablecaption ${1:classes} %}$2{% endtablecaption %}
-$0
+{% tablecaption ${1:classes} %}$2$0{% endtablecaption %}
 endsnippet
 
 snippet nt "Hexo note tag(next)" bwA
 {% note ${1:default} ${2} %}
-${3:${VISUAL}}
+${3:${VISUAL}}$0
 {% endnote %}
-$0
 endsnippet
 
 snippet cq "Center quote" bwA
 {% centerquote %}
-${1:${VISUAL}}
+${1:${VISUAL}}$0
 {% endcenterquote %}
-$0
 endsnippet
 
 snippet pp "Hexo post link to specified anchor" i
@@ -205,19 +203,25 @@ ${4:${VISUAL}}
 <!-- endtab -->
 
 <!-- tab ${5:title}@${6} -->
-${7}
+${7}$0
 <!-- endtab -->
 {% endtabs %}
-$0
 endsnippet
 
 snippet tab "Tab" bw
 <!-- tab ${1:title}@${2} -->
-${3:${VISUAL}}
+${3:${VISUAL}}$0
 <!-- endtab -->
-$0
 endsnippet
 
+snippet hdt "hide text" iw
+{% hdt ${1:${VISUAL}} %}$0
+endsnippet
+
+
+snippet hzl "horizontal list" iw
+{% hzl %}${1:${VISUAL}}{% endhzl %}$0
+endsnippet
 
 # snippet udl "underline" iwA
 # <u>${1:${VISUAL}}</u>$0

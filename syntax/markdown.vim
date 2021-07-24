@@ -73,8 +73,9 @@ syn region HWTagPostLink matchgroup=HWTagPostLinkDelimiter contains=@NoSpell one
     \ start=+{%\s*post_link\s\+\S\+\s\++ end=+\s\+\(true\|false\)\s*%}+
 syn region HWTagPostLink matchgroup=HWTagPostLinkDelimiter contains=@NoSpell oneline concealends
     \ start=+{%\s*post_link\s\+\S\+\s\+['"]+ end=+['"]\s\+\(true\|false\)\s*%}+
+" syn match HWTagHideText '{%\s*\(hidetext\|hdt\)\s\+\S\{-}\s\+%}'
 
-syn cluster CHWInlineTag contains=HWTag,HWTagPostLink
+syn cluster CHWInlineTag contains=HWTag,HWTagPostLink,HWTagHideText
 syn cluster CHWTagBlock  contains=HWTagCodeBlock
 
 "=======================================\ Inline /======================================
@@ -153,17 +154,23 @@ syn cluster CHWTextDeclaration contains=HWSub,HWSup,HWInsert,HWDelete,HWItalic,H
 "---------------------------------------\ lists /---------------------------------------
 syn match HWList '^\s*\zs\(\d\+\.\|\d\+)\|-\|\*\|+\)\ze\s\+'
     \ contains=HWEmoji,HWKeyword,@CHWLink,@CHWInlineCM,@CHWTextDeclaration,@CHWInlineTag,
-    \   @CHWOthersInline,
     \   @CHWOthersInline
 
 "--------------------------------------\ Heading /--------------------------------------
 syn region HWHeading1 matchgroup=HWH1Delimiter start='^#\s\+'      end='$' keepend oneline
+    \ contains=@CHWTextDeclaration
 syn region HWHeading2 matchgroup=HWH2Delimiter start='^##\s\+'     end='$' keepend oneline
+    \ contains=@CHWTextDeclaration
 syn region HWHeading3 matchgroup=HWH3Delimiter start='^###\s\+'    end='$' keepend oneline
+    \ contains=@CHWTextDeclaration
 syn region HWHeading4 matchgroup=HWH4Delimiter start='^####\s\+'   end='$' keepend oneline
+    \ contains=@CHWTextDeclaration
 syn region HWHeading5 matchgroup=HWH5Delimiter start='^#####\s\+'  end='$' keepend oneline
+    \ contains=@CHWTextDeclaration
 syn region HWHeading6 matchgroup=HWH6Delimiter start='^######\s\+' end='$' keepend oneline
+    \ contains=@CHWTextDeclaration
 syn match  HWHeading2 '^.*$\n\ze-----*$' keepend
+    \ contains=@CHWTextDeclaration
 
 syn cluster CHWHeading contains=HWHeading1,HWHeading2,HWHeading3,HWHeading4,HWHeading5,HWHeading6
 
@@ -269,6 +276,7 @@ hi HWList ctermfg=204 guifg=#E06C75
 hi HWTag cterm=italic,underline gui=italic,underline
 hi link HWTagCodeBlock HWCodeBlock
 hi link HWTagPostLink HWRawLink
+" hi HWTagHideText ctermfg=145 ctermbg=145 guifg=#ABB2BF guibg=#ABB2BF
 
 "--------------------------------------\ Keywords /-------------------------------------
 hi link HWKeyword Keyword
@@ -281,6 +289,6 @@ hi link HWHtmlBr Comment
 
 hi link HWEscape Comment
 
-syn cluster CHWOthersInline contains=HWHtmlBr,HWEscape
+syn cluster CHWOthersInline contains=HWHtmlBr,HWEscape,HWFooterAnchor
 
 let b:current_syntax = 'markdown'

@@ -1,3 +1,8 @@
+if exists('g:hexowiki_loaded') || &compatible
+  finish
+endif
+let g:hexowiki_loaded = 1
+
 "---------------------------------------\ config /---------------------------------------
 let g:hexowiki_skeleton = {
             \ 'post': '~/blog/scaffolds/post.md',
@@ -7,12 +12,6 @@ let g:hexowiki_skeleton = {
 
 let g:hexowiki_home = '~/blog/source/_posts/'
 let g:hexowiki_follow_after_create = 0
-
-"---------------------------------------\ plugin /---------------------------------------
-if exists('g:hexowiki_loaded') || &compatible
-  finish
-endif
-let g:hexowiki_loaded = 1
 
 "---------------------------------\ initialize a file /----------------------------------
 function! s:should_init()
@@ -25,6 +24,7 @@ function! s:init_file() abort
     " TODO: detect page type
     let l:type = 'post'
 
+    echo 'hexo new ' . l:type . ' "' . expand('%:t:r') . '" ...'
     call system('hexo new ' . l:type . ' "' . expand('%:t:r') . '"')
     edit
 endfunction
@@ -127,9 +127,10 @@ endfunction
 
 let s:link_patterns = [
     \ '{%\s*post_link\s\+.\{-1,}%}',
-    \ '<a\s\+href=[''"]{%\s\+post_path\s\+\(.\{-1,}\)\s*%}\(?highlight=.\{-}\)*\(#.\{-1,}\)\?[''"]>.\{-}<\/a>',
+    \ '<a\s\+href=[''"]{%\s\+post_path\s\+\(.\{-1,}\)\s*%}\(?highlight=.\{-}\)\=\(#.\{-}\)\=[''"]>.\{-}<\/a>',
     \ '\[.\{-1,}\](\(?highlight=.\{-}\)*\(#.\{-1,}\))',
-    \ '!\?\[.\{-1,}\](\(.\{-1,}\))'
+    \ '!\?\[.\{-1,}\](\(.\{-1,}\))',
+    \ '\[\(\^.\{-}\)\]\(:\=\)'
     \ ]
 
 " Create or follow ori_link link
@@ -141,7 +142,7 @@ function! g:FollowLink() abort
     let matchb = 0
     let matche = 0
     " If cursor is on a link, get the beginning, end and type of the link.
-    for link_type in range(4)
+    for link_type in range(5)
         " let matchb = match(line, s:link_patterns[link_type])
         " " No link in this line
         " if matchb == -1
@@ -189,19 +190,30 @@ function! g:FollowLink() abort
     elseif link_type == 1
         let m = matchlist(line[matchb:matche-1], s:link_patterns[link_type])
         execute 'edit ' . m[1] . '.md'
-        if m[3] != ''
-            call search('#\+\s\+' . m[3][1:])
+        if m[3] != '#' && m[3][0] == '#'
+            call search('#\+\s\+' . tolower(substitute(m[3][1:], '-', '[ -]', 'g')) . '$')
         endif
     elseif link_type == 2
         let m = matchlist(line[matchb:matche-1], s:link_patterns[link_type])
         if m[2][1:] == "more"
-            call search("<!-- more -->", 's')
+            call search("^<!-- more -->$", 's')
         endif
         " echo tolower(substitute(m[2][1:], '-', ' ', 'g'))
-        call search('#\+\s\+' . tolower(substitute(m[2][1:], '-', ' ', 'g')), 's')
+        if !search('#\+\s\+' . tolower(substitute(m[2][1:], '-', '[ -]', 'g')) . '$', 's')
+            if !search('{%\stabs\s' . tolower(substitute(m[2][1:], '-', '[ -]', 'g')) . ',\d\s%}', 's')
+                echo 'Anchor ' . m[2][1:] . ' not found.'
+            endif
+        endif
     elseif link_type == 3
         let m = matchlist(line[matchb:matche-1], s:link_patterns[link_type])
         call system('xdg-open ' . m[1])
+    elseif link_type == 4
+        let m = matchlist(line[matchb:matche-1], s:link_patterns[link_type])
+        if m[2] == ''
+            call search('^\[' . m[1] . '\]:\s', 's')
+        else
+            call search('\[' . m[1] . '\]\($\|[^:]\)', 'sb')
+        endif
     else
         echo '[g:FollowLink] undefined'
     endif
