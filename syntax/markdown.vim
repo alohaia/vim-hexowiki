@@ -40,7 +40,7 @@ syn region HWCodeBlock  matchgroup=HWCodeDelimiter contains=@NoSpell keepend con
 syn region HWInlineMath matchgroup=HWMathDelimiter contains=@NoSpell keepend oneline concealends display
     \ start='[^$]*\zs\$\ze[^$]*' end='[^$]*\zs\$\ze[^$]*'
 syn region HWMathBlock  matchgroup=HWMathDelimiter contains=@NoSpell keepend concealends display fold
-    \ start='^\s*\ze\$\$$' end='^\s*\(\\,\)\?[.]\zs\$\$$'
+    \ start='^\s*\$\$\ze.*$' end='^\s*.*\zs\$\$$'
 
 syn cluster CHWInlineCM contains=HWInlineCode,HWInlineMath
 
@@ -231,7 +231,7 @@ hi HWH5Delimiter ctermfg=204 guifg=#dddddd
 hi HWH6Delimiter ctermfg=204 guifg=#dddddd
 
 "-------------------------------------\ Reference /-------------------------------------
-hi HWReference cterm=italic gui=italic ctermfg=59 guifg=#5C6370
+hi HWReference ctermfg=59 guifg=#5C6370
 hi HWReferenceHead ctermfg=59 guifg=#5C6370
 
 "--------------------------------------\ Comment /--------------------------------------
@@ -290,5 +290,7 @@ hi link HWHtmlBr Comment
 hi link HWEscape Comment
 
 syn cluster CHWOthersInline contains=HWHtmlBr,HWEscape,HWFooterAnchor
+
+hi SpellBad gui=undercurl
 
 let b:current_syntax = 'markdown'

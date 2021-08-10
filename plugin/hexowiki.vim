@@ -1,17 +1,25 @@
-if exists('g:hexowiki_loaded') || &compatible
+" Vim plugin for writing hexo posts
+" Maintainer: Qihuan Liu <liu.qihuan@outlook.com>
+
+if exists('g:loaded_hexowiki') || &compatible
   finish
 endif
-let g:hexowiki_loaded = 1
+let g:loaded_hexowiki = 1
 
 "---------------------------------------\ config /---------------------------------------
-let g:hexowiki_skeleton = {
-            \ 'post': '~/blog/scaffolds/post.md',
-            \ 'page': '~/blog/scaffolds/page.md',
-            \ 'draft': '~/blog/scaffolds/draft.md'
-            \ }
+if !exists('g:hexowiki_home')
+    let g:hexowiki_home = '~/blog/source/_posts'
+endif
+let g:hexowiki_home = strgetchar(g:hexowiki_home, strlen(g:hexowiki_home)) == 47
+            \ ? g:hexowiki_home : g:hexowiki_home[:-2]
 
-let g:hexowiki_home = '~/blog/source/_posts/'
-let g:hexowiki_follow_after_create = 0
+if !exists('g:hexowiki_follow_after_create')
+    let g:hexowiki_follow_after_create = 0
+endif
+
+if !exists('g:hexowiki_use_imaps')
+    let g:hexowiki_use_imaps = 1
+endif
 
 "---------------------------------\ initialize a file /----------------------------------
 function! s:should_init()
@@ -29,7 +37,7 @@ function! s:init_file() abort
     edit
 endfunction
 
-augroup hexowiki
+augroup hexowiki_init_file
     au!
     autocmd BufNewFile *.md if s:should_init() | call s:init_file() | endif
 augroup END
@@ -56,7 +64,7 @@ function! s:wcharlen(charfb)
     endfor
 endfunction
 
-function! VisualInline()
+function! s:visualInline()
     let line = getline('.')
 
     let vbegin = col("v") - 1
@@ -80,7 +88,7 @@ endfunction
 " Return:
 "   - Empty string if failed.
 "   - Name of new file if Succeed.
-function! g:CreateLink(mode)
+function! s:createLink(mode)
     let line = getline('.')
     let col = col('.') - 1
 
@@ -91,7 +99,7 @@ function! g:CreateLink(mode)
 
     if a:mode == 'v' || a:mode == 'V'
         " Visual mode
-        let visual_selection = VisualInline()
+        let visual_selection = s:visualInline()
         let base = visual_selection[0]
         echo visual_selection
         if visual_selection[1] == 0
@@ -134,7 +142,7 @@ let s:link_patterns = [
     \ ]
 
 " Create or follow ori_link link
-function! g:FollowLink() abort
+function! s:followLink() abort
     let line = getline('.')
     let col = col('.') - 1
 
@@ -178,7 +186,7 @@ function! g:FollowLink() abort
     " No link in current line
     if matchb == 0 && matche == 0
         " Create a link under cursor
-        let new_file = g:CreateLink(mode())
+        let new_file = s:createLink(mode())
         if new_file != '' && g:hexowiki_follow_after_create
             execute 'edit ' . new_file
         endif
@@ -214,13 +222,11 @@ function! g:FollowLink() abort
         else
             call search('\[' . m[1] . '\]\($\|[^:]\)', 'sb')
         endif
-    else
-        echo '[g:FollowLink] undefined'
     endif
 
 endfunction
 
-function! FindLink(foreward)
+function! s:findLink(foreward)
     if a:foreward == 1
         let flags = 'n'
     else
@@ -238,14 +244,12 @@ function! FindLink(foreward)
     call cursor(lnum, col)
 endfunction
 
+noremap <unique><script> <Plug>FollowLinkN <SID>FollowLinkN
+noremap <unique><script> <Plug>FollowLinkV <SID>FollowLinkV
+noremap <unique><script> <Plug>FindLinkP <SID>FindLinkP
+noremap <unique><script> <Plug>FindLinkN <SID>FindLinkN
 
-au FileType markdown nnoremap <buffer> <CR> <cmd>call FollowLink()<CR>
-au FileType markdown xnoremap <buffer> <CR> <ESC>gv<cmd>call FollowLink()<CR><ESC>
-
-au FileType markdown nnoremap <buffer> <C-l><C-n> <cmd>call FindLink(1)<CR>
-au FileType markdown nnoremap <buffer> <C-l><C-p> <cmd>call FindLink(0)<CR>
-
-au FileType markdown inoremap <buffer> <expr> ： col('.') == 1 ? ': ' : '：'
-au FileType markdown inoremap <buffer> <expr> :  col('.') == 1 ? ': ' : ':'
-au FileType markdown inoremap <buffer> <expr> 》 col('.') == 1 ? '> ' : '》'
-au FileType markdown inoremap <buffer> <expr> >  col('.') == 1 ? '> ' : '>'
+noremap <unique> <SID>FollowLinkN <cmd>call <SID>followLink()<CR>
+noremap <unique> <SID>FollowLinkV <ESC>gv<cmd>call <SID>followLink()<CR><ESC>
+noremap <unique> <SID>FindLinkP <cmd>call <SID>findLink(1)<CR>
+noremap <unique> <SID>FindLinkN <cmd>call <SID>findLink(0)<CR>
