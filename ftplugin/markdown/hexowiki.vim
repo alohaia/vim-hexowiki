@@ -6,6 +6,10 @@ if exists('b:did_hexowiki') || &compatible
 endif
 let b:did_hexowiki = 1
 
+if g:hexowiki_disable_fold == 0
+    setlocal foldmethod=syntax
+endif
+
 if !hasmapto('<Plug>FollowLinkN')
     nmap <buffer> <CR> <Plug>FollowLinkN
 end

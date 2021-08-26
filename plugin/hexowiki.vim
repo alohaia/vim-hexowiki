@@ -21,6 +21,10 @@ if !exists('g:hexowiki_use_imaps')
     let g:hexowiki_use_imaps = 1
 endif
 
+if !exists('g:hexowiki_disable_fold')
+    let g:hexowiki_disable_fold = 0
+endif
+
 "---------------------------------\ initialize a file /----------------------------------
 function! s:should_init()
     let current_file = expand('%:p:h')

@@ -16,7 +16,7 @@ syn sync fromstart
 "---------------------------------------\ Header /--------------------------------------
 syn region HWHeader contains=HWHeaderItem,HWHeaderList keepend fold
     \ start='\%^---$' end='^---$'
-syn match  HWHeaderItem '^\(title\|comments\|mathjax\|date\|tags\|categories\)' contained
+syn match  HWHeaderItem '^\(title\|comments\|mathjax\|date\|tags\|categories\|coauthor\)' contained
 syn region HWHeaderList matchgroup=HWHeaderListDelimiter contained
     \ start='^\s*-\s\+' end='$'
 
@@ -169,10 +169,33 @@ syn region HWHeading5 matchgroup=HWH5Delimiter start='^#####\s\+'  end='$' keepe
     \ contains=@CHWTextDeclaration
 syn region HWHeading6 matchgroup=HWH6Delimiter start='^######\s\+' end='$' keepend oneline
     \ contains=@CHWTextDeclaration
+
 syn match  HWHeading2 '^.*$\n\ze-----*$' keepend
     \ contains=@CHWTextDeclaration
 
 syn cluster CHWHeading contains=HWHeading1,HWHeading2,HWHeading3,HWHeading4,HWHeading5,HWHeading6
+
+if g:hexowiki_disable_fold == 0
+    let g:markdown_fold_custom = 'yes'
+    syn match HWSection1 fold transparent
+        \ '^#\s\+\(.\|\n\)\{-}\ze\(^#\s\+\|\%$\)'
+        \ contains=HWHeading1,HWSection2,HWSection3,HWSection4,HWSection5,HWSection6
+    syn match HWSection2 fold transparent
+        \ '^##\s\+\(.\|\n\)\{-}\ze\(^#\{1,2}\s\+\|\%$\)'
+        \ contains=HWHeading2,HWSection3,HWSection4,HWSection5,HWSection6
+    syn match HWSection3 fold transparent
+        \ '^###\s\+\(.\|\n\)\{-}\ze\(^#\{1,3}\s\+\|\%$\)'
+        \ contains=HWHeading3,HWSection4,HWSection5,HWSection6
+    syn match HWSection4 fold transparent
+        \ '^####\s\+\(.\|\n\)\{-}\ze\(^#\{1,4}\s\+\|\%$\)'
+        \ contains=HWHeading4,HWSection5,HWSection6
+    syn match HWSection5 fold transparent
+        \ '^#####\s\+\(.\|\n\)\{-}\ze\(^#\{1,5}\s\+\|\%$\)'
+        \ contains=HWHeading5,HWSection6
+    syn match HWSection6 fold transparent
+        \ '^######\s\+\(.\|\n\)\{-}\ze\(^#\{1,6}\s\+\|\%$\)'
+        \ contains=ALLBUT,HWSection1,HWSection2,HWSection3,HWSection4,HWSection5,HWSection6
+endif
 
 "=======================================\ Block /=======================================
 
