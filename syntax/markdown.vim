@@ -16,7 +16,7 @@ syn sync fromstart
 "---------------------------------------\ Header /--------------------------------------
 syn region HWHeader contains=HWHeaderItem,HWHeaderList keepend fold
     \ start='\%^---$' end='^---$'
-syn match  HWHeaderItem '^\(title\|comments\|mathjax\|date\|tags\|categories\|coauthor\)' contained
+exec 'syn match HWHeaderItem +^\(' .. join(g:hexowiki_header_items, '\|') .. '\)+ contained'
 syn region HWHeaderList matchgroup=HWHeaderListDelimiter contained
     \ start='^\s*-\s\+' end='$'
 

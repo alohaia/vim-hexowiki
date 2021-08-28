@@ -25,6 +25,13 @@ if !exists('g:hexowiki_disable_fold')
     let g:hexowiki_disable_fold = 0
 endif
 
+if !exists('g:hexowiki_header_items')
+    let g:hexowiki_header_items = [
+        \ 'title', 'comments', 'mathjax', 'date',
+        \ 'tags', 'categories', 'coauthor'
+        \ ]
+endif
+
 "---------------------------------\ initialize a file /----------------------------------
 function! s:should_init()
     let current_file = expand('%:p:h')
