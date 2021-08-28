@@ -257,3 +257,14 @@ noremap <unique> <SID>FollowLinkN <cmd>call <SID>followLink()<CR>
 noremap <unique> <SID>FollowLinkV <ESC>gv<cmd>call <SID>followLink()<CR><ESC>
 noremap <unique> <SID>FindLinkP <cmd>call <SID>findLink(1)<CR>
 noremap <unique> <SID>FindLinkN <cmd>call <SID>findLink(0)<CR>
+
+"--------------------------------------\ foldexpr /-------------------------------------
+function! g:hexowiki#foldexpr(lnum)
+    let lev = strchars(matchstr(getline(a:lnum), '^#\+\s'))
+    if lev != 0
+        return '>' .. (lev-1)
+    else
+        return '='
+    endif
+endfunction
+

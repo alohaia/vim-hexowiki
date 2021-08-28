@@ -7,7 +7,8 @@ endif
 let b:did_hexowiki = 1
 
 if g:hexowiki_disable_fold == 0
-    setlocal foldmethod=syntax
+    setlocal foldmethod=expr
+    setlocal foldexpr=hexowiki#foldexpr(v:lnum)
 endif
 
 if !hasmapto('<Plug>FollowLinkN')
