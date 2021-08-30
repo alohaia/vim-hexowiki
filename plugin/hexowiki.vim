@@ -10,8 +10,13 @@ let g:loaded_hexowiki = 1
 if !exists('g:hexowiki_home')
     let g:hexowiki_home = '~/blog/source/_posts'
 endif
-let g:hexowiki_home = strgetchar(g:hexowiki_home, strlen(g:hexowiki_home)) == 47
-            \ ? g:hexowiki_home : g:hexowiki_home[:-2]
+let g:hexowiki_home = 
+    \ strgetchar(g:hexowiki_home, strlen(g:hexowiki_home)) == '/'
+    \ ? g:hexowiki_home[:-2] : g:hexowiki_home
+
+if !exists('g:hexowiki_try_init_file')
+    let g:hexowiki_try_init_file = 0
+endif
 
 if !exists('g:hexowiki_follow_after_create')
     let g:hexowiki_follow_after_create = 0
@@ -33,26 +38,6 @@ if !exists('g:hexowiki_header_items')
 endif
 
 "---------------------------------\ initialize a file /----------------------------------
-function! s:should_init()
-    let current_file = expand('%:p:h')
-    return current_file == expand(g:hexowiki_home)
-         \ || current_file == expand(g:hexowiki_home)[:-2]
-endfunction
-
-function! s:init_file() abort
-    " TODO: detect page type
-    let l:type = 'post'
-
-    echo 'hexo new ' . l:type . ' "' . expand('%:t:r') . '" ...'
-    call system('hexo new ' . l:type . ' "' . expand('%:t:r') . '"')
-    edit
-endfunction
-
-augroup hexowiki_init_file
-    au!
-    autocmd BufNewFile *.md if s:should_init() | call s:init_file() | endif
-augroup END
-
 function! s:is_ascii(pos)
     let line = getline('.')
     if and(char2nr(line[col(a:pos)-1]), 0x80) == 0
@@ -143,6 +128,17 @@ function! s:createLink(mode)
     return base != '' ? base . '.md' : ''
 endfunction
 
+function! s:init_file() abort
+    " if file doesn't exist and file is in right dir
+    if glob(expand('%:p')) == '' && expand('%:p:h') == expand(g:hexowiki_home)
+        " TODO: detect page type
+        let l:type = 'post'
+
+        echo 'hexo new ' . l:type . ' "' . expand('%:t:r') . '" ...'
+        call system('hexo new ' . l:type . ' "' . expand('%:t:r') . '"')
+        edit
+    endif
+endfunction
 
 let s:link_patterns = [
     \ '{%\s*post_link\s\+.\{-1,}%}',
@@ -206,9 +202,15 @@ function! s:followLink() abort
         " Go to the the file specified by the link.
         let match_list = matchlist(line[matchb : matche-1], '{%\s*post_link\s\+\([^\u0020\u0009]\+\).\{-1,}%}')
         execute 'edit ' . g:hexowiki_home . match_list[1] . '.md'
+        if g:hexowiki_try_init_file == 1
+            call s:init_file()
+        endif
     elseif link_type == 1
         let m = matchlist(line[matchb:matche-1], s:link_patterns[link_type])
         execute 'edit ' . m[1] . '.md'
+        if g:hexowiki_try_init_file == 1
+            call s:init_file()
+        endif
         if m[3] != '#' && m[3][0] == '#'
             call search('#\+\s\+' . tolower(substitute(m[3][1:], '-', '[ -]', 'g')) . '$')
         endif
@@ -267,11 +269,84 @@ noremap <unique> <SID>FindLinkN <cmd>call <SID>findLink(0)<CR>
 
 "--------------------------------------\ foldexpr /-------------------------------------
 function! g:hexowiki#foldexpr(lnum)
-    let lev = strchars(matchstr(getline(a:lnum), '^#\+\s'))
-    if lev != 0
-        return '>' .. (lev-1)
-    else
-        return '='
+    let syn_name = synIDattr(synID(a:lnum, match(getline(a:lnum), '\S') + 1, 1), "name")
+
+    " Heading
+    if syn_name =~# 'HWH[1-6]Delimiter'
+        if search('^#\s', 'n')
+            return '>' .. matchstr(syn_name, '\d')
+        else
+            return '>' .. (matchstr(syn_name, '\d') - 1)
+        endif
     endif
+
+    " List TODO: simple method
+    " if syn_name == 'HWList'
+    "     let pline = getline(a:lnum - 1)
+    "     let nline = getline(a:lnum + 1)
+    "     let syn_name_pre = synIDattr(synID(a:lnum - 1, match(pline, '\S') + 1, 1), "name")
+    "     let syn_name_nxt = synIDattr(synID(a:lnum + 1, match(nline, '\S') + 1, 1), "name")
+    "
+    "     let change = strdisplaywidth(match(pline, '\S')) - strdisplaywidth(match(getline(a:lnum), '^\s\+'))
+    "     echo change
+    "
+    "     if syn_name_pre == 'HWList'
+    "     endif
+    "     return 'a1'
+    " endif
+
+    " Hexo tag
+    if syn_name == 'HWTagDelimiter'
+        let name_pattern = '\('.join(g:hexowiki_multiline_tags_with_end, '\|').'\)'
+        if getline(a:lnum) =~# '^{%\s\+' . name_pattern . '.*%}'
+            return 'a1'
+        elseif getline(a:lnum) =~# '^{%\s\+end' . name_pattern . '\s\+%}'
+            return 's1'
+        end
+    endif
+
+    " Code Block
+    if syn_name == 'HWCodeDelimiter'
+        if getline(a:lnum) =~# '^\s*```.\+'
+            return 'a1'
+        else
+            return 's1'
+        endif
+    endif
+
+    " Header
+    if syn_name == 'HWHeader'
+        if a:lnum == 1
+            return 'a1'
+        else
+            return 's1'
+        endif
+    endif
+
+    " Code Block
+    if syn_name == 'HWMathBlock' || syn_name == 'HWMathDelimiter'
+        if getline(a:lnum) =~# '^\s*\$\$.\+'
+            return 'a1'
+        elseif getline(a:lnum) =~# '^\s*.\+\$\$$'
+            return 's1'
+        else
+            return '='
+        endif
+    endif
+
+    " default
+    return '='
 endfunction
 
+function! g:hexowiki#foldtext() abort
+    let syn_name = synIDattr(synID(v:foldstart, match(getline(v:foldstart), '\S')+1, 1), "name")
+    if syn_name == 'HWHeader'
+        let line = substitute(getline(v:foldstart + 1), '^\w*: ', '', '')
+    else
+        let line = getline(v:foldstart)
+    endif
+    let head = '+' . v:foldlevel . '··· ' . (v:foldend-v:foldstart+1) . '(' . v:foldstart
+        \ . v:foldend . ') lines: '
+        \ . trim(substitute(line, '{%\|%}\|`\|^#\+', '', 'g')) . ' '
+    return head
+endfunction

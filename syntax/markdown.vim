@@ -40,7 +40,7 @@ syn region HWCodeBlock  matchgroup=HWCodeDelimiter contains=@NoSpell keepend con
 syn region HWInlineMath matchgroup=HWMathDelimiter contains=@NoSpell keepend oneline concealends display
     \ start='[^$]*\zs\$\ze[^$]*' end='[^$]*\zs\$\ze[^$]*'
 syn region HWMathBlock  matchgroup=HWMathDelimiter contains=@NoSpell keepend concealends display fold
-    \ start='^\s*\$\$\ze.*$' end='^\s*.*\zs\$\$$'
+    \ start='^\s*\$\$\ze.*' end='\s*.*\zs\$\$$'
 
 syn cluster CHWInlineCM contains=HWInlineCode,HWInlineMath
 

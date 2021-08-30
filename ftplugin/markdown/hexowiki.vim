@@ -9,6 +9,7 @@ let b:did_hexowiki = 1
 if g:hexowiki_disable_fold == 0
     setlocal foldmethod=expr
     setlocal foldexpr=hexowiki#foldexpr(v:lnum)
+    setlocal foldtext=hexowiki#foldtext()
 endif
 
 if !hasmapto('<Plug>FollowLinkN')
