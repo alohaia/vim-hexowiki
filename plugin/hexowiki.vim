@@ -336,7 +336,7 @@ function! g:hexowiki#foldtext() abort
         let line = getline(v:foldstart)
     endif
     let head = '+' . v:foldlevel . '··· ' . (v:foldend-v:foldstart+1) 
-        \ . '(' . v:foldstart . v:foldend . ') lines: '
+        \ . '(' . v:foldstart . ':' . v:foldend . ') lines: '
         \ . trim(substitute(line, '{%\|%}\|`\|^#\+', '', 'g')) . ' '
     return head
 endfunction
