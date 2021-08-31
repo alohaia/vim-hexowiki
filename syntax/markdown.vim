@@ -1,7 +1,10 @@
-" Quit if syntax file is already loaded
+" Vim plugin for writing hexo posts
+" Maintainer: Qihuan Liu <liu.qihuan@outlook.com>
+
 if exists('b:current_syntax')
   finish
 endif
+let b:current_syntax = 'markdown'
 
 "+-------------------------------------------------------------------------------------+
 "|                                     \ Syntax /                                      |
@@ -314,5 +317,3 @@ hi link HWEscape Comment
 syn cluster CHWOthersInline contains=HWHtmlBr,HWEscape,HWFooterAnchor
 
 hi SpellBad gui=undercurl
-
-let b:current_syntax = 'markdown'

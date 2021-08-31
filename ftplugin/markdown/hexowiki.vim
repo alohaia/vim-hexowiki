@@ -14,16 +14,22 @@ endif
 
 if !hasmapto('<Plug>FollowLinkN')
     nmap <buffer> <CR> <Plug>FollowLinkN
-end
+endif
 if !hasmapto('<Plug>FollowLinkV')
     xmap <buffer> <CR> <Plug>FollowLinkV
 end
 if !hasmapto('<Plug>FindLinkP')
-    nmap <buffer> <Leader>lp <Plug>FindLinkP
-end
+    nmap <buffer> <S-Tab> <Plug>FindLinkP
+endif
 if !hasmapto('<Plug>FindLinkN')
-    nmap <buffer> <Leader>ln <Plug>FindLinkN
-end
+    nmap <buffer> <Tab> <Plug>FindLinkN
+endif
+if !hasmapto('<Plug>ShiftTitlesInc')
+    nmap <nowait> <buffer> <Leader>>> <Plug>ShiftTitlesInc
+endif
+if !hasmapto('<Plug>ShiftTitlesDec')
+    nmap <nowait> <buffer> <leader><< <Plug>ShiftTitlesDec
+endif
 
 if g:hexowiki_use_imaps == 1
     inoremap <buffer><unique> <expr> ： col('.') == 1 ? ': ' : '：'

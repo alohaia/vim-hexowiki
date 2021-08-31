@@ -257,17 +257,7 @@ function! s:findLink(foreward)
     call cursor(lnum, col)
 endfunction
 
-noremap <unique><script> <Plug>FollowLinkN <SID>FollowLinkN
-noremap <unique><script> <Plug>FollowLinkV <SID>FollowLinkV
-noremap <unique><script> <Plug>FindLinkP <SID>FindLinkP
-noremap <unique><script> <Plug>FindLinkN <SID>FindLinkN
-
-noremap <unique> <SID>FollowLinkN <cmd>call <SID>followLink()<CR>
-noremap <unique> <SID>FollowLinkV <ESC>gv<cmd>call <SID>followLink()<CR><ESC>
-noremap <unique> <SID>FindLinkP <cmd>call <SID>findLink(1)<CR>
-noremap <unique> <SID>FindLinkN <cmd>call <SID>findLink(0)<CR>
-
-"--------------------------------------\ foldexpr /-------------------------------------
+"--------------------------------------\ folding /--------------------------------------
 function! g:hexowiki#foldexpr(lnum)
     let syn_name = synIDattr(synID(a:lnum, match(getline(a:lnum), '\S') + 1, 1), "name")
 
@@ -345,8 +335,52 @@ function! g:hexowiki#foldtext() abort
     else
         let line = getline(v:foldstart)
     endif
-    let head = '+' . v:foldlevel . '··· ' . (v:foldend-v:foldstart+1) . '(' . v:foldstart
-        \ . v:foldend . ') lines: '
+    let head = '+' . v:foldlevel . '··· ' . (v:foldend-v:foldstart+1) 
+        \ . '(' . v:foldstart . v:foldend . ') lines: '
         \ . trim(substitute(line, '{%\|%}\|`\|^#\+', '', 'g')) . ' '
     return head
 endfunction
+
+"------------------------------------\ Shift titles /-----------------------------------
+function! s:shiftTitles(inc)
+    let line = getline('.')
+    if line !~ '^#\+\s\+.*$'
+        return
+    endif
+    let lev = strlen(matchstr(line, '^#\+'))
+    call setline('.', a:inc
+                \ ? '#' . line
+                \ : line[1:]
+                \ )
+    " shift other headings
+    let curpos = getcurpos()
+    let stopln = searchpos('^#\{1,' . lev . '}\s', 'nW')[0]
+    let stopln = stopln == 0 ? 0 : stopln - 1
+    let ln = -1
+    while ln != 0
+        let ln = searchpos('^#\{' . (lev+1) . '}', 'W', stopln)[0]
+        let line = getline(ln)
+        call setline(ln, a:inc
+                    \ ? '#' . line
+                    \ : line[1:]
+                    \ )
+    endwhile
+    call cursor(curpos[1], curpos[2])
+endfunction
+
+"--------------------------------------\ mappings /-------------------------------------
+noremap <unique><script> <Plug>FollowLinkN <SID>FollowLinkN
+noremap <unique><script> <Plug>FollowLinkV <SID>FollowLinkV
+noremap <unique><script> <Plug>FindLinkP <SID>FindLinkP
+noremap <unique><script> <Plug>FindLinkN <SID>FindLinkN
+
+noremap <unique> <SID>FollowLinkN <cmd>call <SID>followLink()<CR>
+noremap <unique> <SID>FollowLinkV <ESC>gv<cmd>call <SID>followLink()<CR><ESC>
+noremap <unique> <SID>FindLinkP <cmd>call <SID>findLink(1)<CR>
+noremap <unique> <SID>FindLinkN <cmd>call <SID>findLink(0)<CR>
+
+noremap <unique><script> <Plug>ShiftTitlesInc <SID>ShiftTitlesInc
+noremap <unique><script> <Plug>ShiftTitlesDec <SID>ShiftTitlesDec
+
+noremap <unique> <SID>ShiftTitlesInc <Cmd>call <SID>shiftTitles(1)<CR>
+noremap <unique> <SID>ShiftTitlesDec <Cmd>call <SID>shiftTitles(0)<CR>

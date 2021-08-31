@@ -1,3 +1,6 @@
+-- Vim plugin for writing hexo posts
+-- Maintainer: Qihuan Liu <liu.qihuan@outlook.com>
+
 local M = {}
 
 function M.run_block()
