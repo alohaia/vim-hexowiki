@@ -4,7 +4,6 @@
 if exists('b:current_syntax')
   finish
 endif
-let b:current_syntax = 'markdown'
 
 "+-------------------------------------------------------------------------------------+
 "|                                     \ Syntax /                                      |
@@ -17,7 +16,7 @@ syn iskeyword @,48-57,192-255,$,_
 syn sync fromstart
 
 "---------------------------------------\ Header /--------------------------------------
-syn region HWHeader contains=HWHeaderItem,HWHeaderList keepend fold
+syn region HWHeader contains=HWHeaderItem,HWHeaderList keepend
     \ start='\%^---$' end='^---$'
 exec 'syn match HWHeaderItem +^\(' .. join(g:hexowiki_header_items, '\|') .. '\)+ contained'
 syn region HWHeaderList matchgroup=HWHeaderListDelimiter contained
@@ -30,28 +29,51 @@ syn match HWComment '<!--.*-->'
 syn match  HWLine '^-----*$'
 
 "-------------------------------------\ Code Block /------------------------------------
-syn region HWInlineCode matchgroup=HWCodeDelimiter contains=@NoSpell keepend oneline concealends
+syn region HWInlineCode matchgroup=HWInlineCodeDelimiter keepend oneline concealends
     \ start="`" end="`"
-syn region HWInlineCode matchgroup=HWCodeDelimiter end=" \=``" contains=@NoSpell keepend oneline concealends
-    \ start="`` \="
-syn region HWInlineCode matchgroup=HWCodeDelimiter end=" \=```" contains=@NoSpell keepend oneline concealends
-    \ start="``` \="
-syn region HWCodeBlock  matchgroup=HWCodeDelimiter contains=@NoSpell keepend concealends fold
-    \ start='^\s*\zs```\ze.\+$' end='^\s*\zs```$'
+syn region HWInlineCode matchgroup=HWInlineCodeDelimiter keepend oneline concealends
+    \ start="`` \=" end=" \=``"
+syn region HWInlineCode matchgroup=HWInlineCodeDelimiter keepend oneline concealends
+    \ start="``` \=" end=" \=```"
+syn region HWCodeBlock matchgroup=HWCodeDelimiterStart start="^\s*````*.*$" matchgroup=HWCodeDelimiterEnd end="^\s*````*\ze\s*$" keepend
+
+if !exists('g:hexowiki_markdown_fenced_languages')
+    if !exists('g:markdown_fenced_languages')
+        let g:markdown_fenced_languages = []
+        let g:hewoxiki_markdown_fenced_languages = []
+    else
+        let g:hewoxiki_markdown_fenced_languages = g:markdown_fenced_languages
+    endif
+else
+    if !exists('g:markdown_fenced_languages')
+        let g:markdown_fenced_languages = g:hexowiki_markdown_fenced_languages
+    endif
+endif
+let s:done_include = {}
+for s:type in map(copy(g:markdown_fenced_languages),'matchstr(v:val,"[^=]*$")')
+  if has_key(s:done_include, matchstr(s:type,'[^.]*'))
+    continue
+  endif
+  exe 'syn include @HWIncludeCode_'.substitute(s:type,'\.','','g').' syntax/'.matchstr(s:type,'[^.]*').'.vim'
+  exe 'syn region HWCodeBlock_'.substitute(s:type,'\.','','g').
+              \ ' matchgroup=HWCodeDelimiterStart start=/^```'.s:type.'/ matchgroup=HWCodeDelimiterEnd end=/^```$/ contains=@HWIncludeCode_'
+              \ .substitute(s:type,'\.','','g').' keepend'
+  unlet! b:current_syntax
+  let s:done_include[matchstr(s:type,'[^.]*')] = 1
+endfor
+unlet! s:type
+unlet! s:done_include
 
 "----------------------------------------\ Math /---------------------------------------
-syn region HWInlineMath matchgroup=HWMathDelimiter contains=@NoSpell keepend oneline concealends display
+syn include @HWIncludeCode_tex syntax/tex.vim
+syn region HWInlineMath matchgroup=HWMathDelimiter contains=@HWIncludeCode_tex keepend oneline concealends display
     \ start='[^$]*\zs\$\ze[^$]*' end='[^$]*\zs\$\ze[^$]*'
-syn region HWMathBlock  matchgroup=HWMathDelimiter contains=@NoSpell keepend concealends display fold
-    \ start='^\s*\$\$\ze.*' end='\s*.*\zs\$\$$'
+syn region HWMathBlock contains=@HWIncludeCode_tex keepend concealends display
+    \ matchgroup=HWMathDelimiterStart start='^\s*\$\$\ze.*' matchgroup=HWMathDelimiterEnd end='\s*.*\zs\$\$$'
 
 syn cluster CHWInlineCM contains=HWInlineCode,HWInlineMath
 
 "---------------------------------------\ Footer /--------------------------------------
-" syn match HWFooterAnchor '\[\zs\^.\{-}[^\\]\ze\]\([^:]\|\n\)' keepend
-" syn match HWFooter '^\[\zs\^.\{-}[^\\]\ze\]:' keepend
-"     \ contains=HWEmoji,HWKeyword,@CHWLink,@CHWInlineCM,@CHWTextDeclaration,@CHWInlineTag,
-"     \   @CHWOthersInline
 syn region HWFooterAnchor matchgroup=HWFooterAnchorDelimiter keepend concealends oneline
     \ start='\[\ze\^' end='\]\ze\([^:]\|\n\)' skip='\\]'
 syn region HWFooter matchgroup=HWFooterDelimiter keepend concealends oneline
@@ -65,18 +87,16 @@ syn match HWAbbr '^\*\[.*\]: .*$' keepend
     \   HWAbbrHead
 syn region HWAbbrHead matchgroup=HWAbbrHeadDelimiter contained keepend concealends oneline
     \ start='^\*\zs\[' end='\]\ze:\s\+'
-" syn match HWAbbrHead '\(^\*\zs\[\|\]\ze:\s\+\)' contained keepend conceal
 
 "------------------------------------\ Tags plugin /------------------------------------
 syn region HWTag matchgroup=HWTagDelimiter contains=@NoSpell,HWTag oneline concealends
     \ start='{%\s*' end='\s*%}'
-syn region HWTagCodeBlock matchgroup=HWTagCodeBlockDelimiter contains=@NoSpell concealends fold
+syn region HWTagCodeBlock matchgroup=HWTagCodeBlockDelimiter contains=@NoSpell concealends
     \ start='^{%\s*\z(codeblock\s\+.\{-1,}\)\s*%}$' end='{%\s*endcodeblock\s*%}'
 syn region HWTagPostLink matchgroup=HWTagPostLinkDelimiter contains=@NoSpell oneline concealends
     \ start=+{%\s*post_link\s\+\S\+\s\++ end=+\s\+\(true\|false\)\s*%}+
 syn region HWTagPostLink matchgroup=HWTagPostLinkDelimiter contains=@NoSpell oneline concealends
     \ start=+{%\s*post_link\s\+\S\+\s\+['"]+ end=+['"]\s\+\(true\|false\)\s*%}+
-" syn match HWTagHideText '{%\s*\(hidetext\|hdt\)\s\+\S\{-}\s\+%}'
 
 syn cluster CHWInlineTag contains=HWTag,HWTagPostLink,HWTagHideText
 syn cluster CHWTagBlock  contains=HWTagCodeBlock
@@ -90,9 +110,7 @@ syn match HWEscape '\\\ze.' conceal
 syn keyword HWKeyword TODO Same See toc TOC
 
 "---------------------------------------\ Emoji /---------------------------------------
-" syn match HWEmoji ':[^:\u0020\u0009]\+:'
 syn match HWEmoji ':\w\+:'
-" syn region HWEmoji matchgroup=HWEmojiDelimiter start=':\ze[^ ]*:' end=':[^ ]*\zs:' keepend oneline concealends
 
 "------------------------------\ Original link or image /------------------------------
 syn region HWLink matchgroup=HWLinkDelimiter keepend oneline concealends
@@ -178,27 +196,6 @@ syn match  HWHeading2 '^.*$\n\ze-----*$' keepend
 
 syn cluster CHWHeading contains=HWHeading1,HWHeading2,HWHeading3,HWHeading4,HWHeading5,HWHeading6
 
-" if g:hexowiki_disable_fold == 0
-"     syn match HWSection1 fold transparent
-"         \ '^#\s\+\(.\|\n\)\{-}\ze\(^#\s\+\|\%$\)'
-"         \ contains=HWHeading1,HWSection2,HWSection3,HWSection4,HWSection5,HWSection6
-"     syn match HWSection2 fold transparent
-"         \ '^##\s\+\(.\|\n\)\{-}\ze\(^#\{1,2}\s\+\|\%$\)'
-"         \ contains=HWHeading2,HWSection3,HWSection4,HWSection5,HWSection6
-"     syn match HWSection3 fold transparent
-"         \ '^###\s\+\(.\|\n\)\{-}\ze\(^#\{1,3}\s\+\|\%$\)'
-"         \ contains=HWHeading3,HWSection4,HWSection5,HWSection6
-"     syn match HWSection4 fold transparent
-"         \ '^####\s\+\(.\|\n\)\{-}\ze\(^#\{1,4}\s\+\|\%$\)'
-"         \ contains=HWHeading4,HWSection5,HWSection6
-"     syn match HWSection5 fold transparent
-"         \ '^#####\s\+\(.\|\n\)\{-}\ze\(^#\{1,5}\s\+\|\%$\)'
-"         \ contains=HWHeading5,HWSection6
-"     syn match HWSection6 fold transparent
-"         \ '^######\s\+\(.\|\n\)\{-}\ze\(^#\{1,6}\s\+\|\%$\)'
-"         \ contains=ALLBUT,HWSection1,HWSection2,HWSection3,HWSection4,HWSection5,HWSection6
-" endif
-
 "=======================================\ Block /=======================================
 
 "-------------------------------------\ Reference /-------------------------------------
@@ -211,7 +208,7 @@ syn region HWReference oneline
 syn match  HWReferenceHead '^\s*>'hs=e contains=HWReferenceHead nextgroup=HWReference contains=HWReferenceHead contained conceal cchar=▊
 
 "---------------------------------------\ Define /--------------------------------------
-syn region HWDefine keepend fold transparent fold
+syn region HWDefine keepend transparent
     \ start='^[^:~\u0020\u0009].*\n\+\s*[:~]' end='\ze\n\{2,}[^:~\u0020\u0009]'
     \ contains=HWEmoji,HWKeyword,@CHWLink,@CHWInlineCM,@CHWTextDeclaration,@CHWInlineTag,HWItalic,
     \   HWReference,HWCodeBlock,HWMathBlock,HWList,@CHWTagBlock,
@@ -265,9 +262,10 @@ hi link HWComment Comment
 "-------------------------------------\ Code Block /------------------------------------
 hi HWInlineCode cterm=italic gui=italic ctermfg=114 guifg=#98C379
 hi HWCodeBlock  ctermfg=114 guifg=#98C379
+hi HWCodeDelimiter cterm=italic gui=italic ctermfg=114 guifg=#98C379
 
 "----------------------------------------\ Math /---------------------------------------
-hi HWInlineMath cterm=italic gui=italic ctermfg=180 guifg=#E5C07B
+hi HWInlineMath ctermfg=180 guifg=#E5C07B
 hi HWMathBlock  ctermfg=180 guifg=#E5C07B
 
 "---------------------------------------\ Emoji /---------------------------------------
@@ -301,7 +299,6 @@ hi HWList ctermfg=204 guifg=#E06C75
 hi HWTag cterm=italic,underline gui=italic,underline
 hi link HWTagCodeBlock HWCodeBlock
 hi link HWTagPostLink HWRawLink
-" hi HWTagHideText ctermfg=145 ctermbg=145 guifg=#ABB2BF guibg=#ABB2BF
 
 "--------------------------------------\ Keywords /-------------------------------------
 hi link HWKeyword Keyword
@@ -317,3 +314,5 @@ hi link HWEscape Comment
 syn cluster CHWOthersInline contains=HWHtmlBr,HWEscape,HWFooterAnchor
 
 hi SpellBad gui=undercurl
+
+let b:current_syntax = 'markdown'

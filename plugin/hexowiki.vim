@@ -7,35 +7,20 @@ endif
 let g:loaded_hexowiki = 1
 
 "---------------------------------------\ config /---------------------------------------
-if !exists('g:hexowiki_home')
-    let g:hexowiki_home = '~/blog/source/_posts'
-endif
-let g:hexowiki_home = 
+let g:hexowiki_home = get(g:, 'hexowiki_home', '~/blog/source/_posts')
+let g:hexowiki_home =
     \ strgetchar(g:hexowiki_home, strlen(g:hexowiki_home)) == '/'
     \ ? g:hexowiki_home[:-2] : g:hexowiki_home
 
-if !exists('g:hexowiki_try_init_file')
-    let g:hexowiki_try_init_file = 0
-endif
+let g:hexowiki_try_init_file = get(g:, 'hexowiki_try_init_file', 0)
+let g:hexowiki_follow_after_create = get(g:, 'hexowiki_follow_after_create', 0)
+let g:hexowiki_use_imaps = get(g:, 'hexowiki_use_imaps', 1)
+let g:hexowiki_disable_fold = get(g:, 'hexowiki_disable_fold', 0)
+let g:hexowiki_header_items = get(g:, 'hexowiki_header_items', [
+    \ 'title', 'comments', 'mathjax', 'date',
+    \ 'tags', 'categories', 'coauthor'
+    \ ])
 
-if !exists('g:hexowiki_follow_after_create')
-    let g:hexowiki_follow_after_create = 0
-endif
-
-if !exists('g:hexowiki_use_imaps')
-    let g:hexowiki_use_imaps = 1
-endif
-
-if !exists('g:hexowiki_disable_fold')
-    let g:hexowiki_disable_fold = 0
-endif
-
-if !exists('g:hexowiki_header_items')
-    let g:hexowiki_header_items = [
-        \ 'title', 'comments', 'mathjax', 'date',
-        \ 'tags', 'categories', 'coauthor'
-        \ ]
-endif
 
 "---------------------------------\ initialize a file /----------------------------------
 function! s:is_ascii(pos)
@@ -260,6 +245,7 @@ endfunction
 "--------------------------------------\ folding /--------------------------------------
 function! g:hexowiki#foldexpr(lnum)
     let syn_name = synIDattr(synID(a:lnum, match(getline(a:lnum), '\S') + 1, 1), "name")
+    let syn_name_eol = synIDattr(synID(a:lnum, match(getline(a:lnum), '\S\s*$')+1, 1), "name")
 
     " Heading
     if syn_name =~# 'HWH[1-6]Delimiter'
@@ -296,12 +282,11 @@ function! g:hexowiki#foldexpr(lnum)
     endif
 
     " Code Block
-    if syn_name == 'HWCodeDelimiter'
-        if getline(a:lnum) =~# '^\s*```.\+'
-            return 'a1'
-        else
-            return 's1'
-        endif
+    if syn_name =~# 'HWCodeDelimiterStart.*'
+        return 'a1'
+    endif
+    if syn_name =~# 'HWCodeDelimiterEnd.*'
+        return 's1'
     endif
 
     " Header
@@ -313,15 +298,12 @@ function! g:hexowiki#foldexpr(lnum)
         endif
     endif
 
-    " Code Block
-    if syn_name == 'HWMathBlock' || syn_name == 'HWMathDelimiter'
-        if getline(a:lnum) =~# '^\s*\$\$.\+'
-            return 'a1'
-        elseif getline(a:lnum) =~# '^\s*.\+\$\$$'
-            return 's1'
-        else
-            return '='
-        endif
+    " Math Block
+    if syn_name == 'HWMathDelimiterStart'
+        return 'a1'
+    endif
+    if syn_name_eol == 'HWMathDelimiterEnd'
+        return 's1'
     endif
 
     " default

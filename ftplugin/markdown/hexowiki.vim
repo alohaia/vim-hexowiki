@@ -37,5 +37,3 @@ if g:hexowiki_use_imaps == 1
     inoremap <buffer><unique> <expr> 》 col('.') == 1 ? '> ' : '》'
     inoremap <buffer><unique> <expr> >  col('.') == 1 ? '> ' : '>'
 endif
-
-noremap <buffer><unique> <M-CR> <Cmd>lua require'rmd'.run_block()<CR>
