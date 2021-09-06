@@ -12,6 +12,10 @@ if g:hexowiki_disable_fold == 0
     setlocal foldtext=hexowiki#foldtext()
 endif
 
+if g:hexowiki_wrap == 1
+    setlocal wrap
+endif
+
 if !hasmapto('<Plug>FollowLinkN')
     nmap <buffer> <CR> <Plug>FollowLinkN
 endif

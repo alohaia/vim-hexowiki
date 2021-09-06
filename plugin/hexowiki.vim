@@ -20,7 +20,8 @@ let g:hexowiki_header_items = get(g:, 'hexowiki_header_items', [
     \ 'title', 'comments', 'mathjax', 'date',
     \ 'tags', 'categories', 'coauthor'
     \ ])
-
+let g:hexowiki_wrap = get(g:, 'hexowiki_wrap', 1)
+let g:hexowiki_auto_save = get(g:, 'hexowiki_auto_save', 1)
 
 "---------------------------------\ initialize a file /----------------------------------
 function! s:is_ascii(pos)
@@ -225,21 +226,7 @@ function! s:followLink() abort
 endfunction
 
 function! s:findLink(foreward)
-    if a:foreward == 1
-        let flags = 'n'
-    else
-        let flags = 'bn'
-    endif
-    let [lnum, col] = [0, 0]
-    for pattern in s:link_patterns
-        let [l, c] = searchpos(pattern, flags)
-        if lnum == 0 || l != 0 && l <= lnum && c < col
-            let [lnum, col] = [l, c]
-            " echomsg 'store ' . lnum ', ' . col
-        endif
-    endfor
-    " echomsg 'goto ' . lnum . ', ' . col
-    call cursor(lnum, col)
+    call searchpos(join(s:link_patterns, '\|'), a:foreward ? 'sb' : 's')
 endfunction
 
 "--------------------------------------\ folding /--------------------------------------
@@ -366,3 +353,12 @@ noremap <unique><script> <Plug>ShiftTitlesDec <SID>ShiftTitlesDec
 
 noremap <unique> <SID>ShiftTitlesInc <Cmd>call <SID>shiftTitles(1)<CR>
 noremap <unique> <SID>ShiftTitlesDec <Cmd>call <SID>shiftTitles(0)<CR>
+
+"--------------------------------------\ autocmd /--------------------------------------
+if g:hexowiki_auto_save
+    augroup autosave
+        au!
+        au InsertLeave *.md,*.markdown,*.Rmd silent update
+        au TextChanged *.md,*.markdown,*.Rmd silent update
+    augroup END
+endif

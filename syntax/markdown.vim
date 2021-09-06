@@ -37,18 +37,7 @@ syn region HWInlineCode matchgroup=HWInlineCodeDelimiter keepend oneline conceal
     \ start="``` \=" end=" \=```"
 syn region HWCodeBlock matchgroup=HWCodeDelimiterStart start="^\s*````*.*$" matchgroup=HWCodeDelimiterEnd end="^\s*````*\ze\s*$" keepend
 
-if !exists('g:hexowiki_markdown_fenced_languages')
-    if !exists('g:markdown_fenced_languages')
-        let g:markdown_fenced_languages = []
-        let g:hewoxiki_markdown_fenced_languages = []
-    else
-        let g:hewoxiki_markdown_fenced_languages = g:markdown_fenced_languages
-    endif
-else
-    if !exists('g:markdown_fenced_languages')
-        let g:markdown_fenced_languages = g:hexowiki_markdown_fenced_languages
-    endif
-endif
+let g:markdown_fenced_languages = get(g:, 'markdown_fenced_languages', [])
 let s:done_include = {}
 for s:type in map(copy(g:markdown_fenced_languages),'matchstr(v:val,"[^=]*$")')
   if has_key(s:done_include, matchstr(s:type,'[^.]*'))
@@ -56,7 +45,7 @@ for s:type in map(copy(g:markdown_fenced_languages),'matchstr(v:val,"[^=]*$")')
   endif
   exe 'syn include @HWIncludeCode_'.substitute(s:type,'\.','','g').' syntax/'.matchstr(s:type,'[^.]*').'.vim'
   exe 'syn region HWCodeBlock_'.substitute(s:type,'\.','','g').
-              \ ' matchgroup=HWCodeDelimiterStart start=/^```'.s:type.'/ matchgroup=HWCodeDelimiterEnd end=/^```$/ contains=@HWIncludeCode_'
+              \ ' matchgroup=HWCodeDelimiterStart start=/^```'.s:type.'[ \n]/ matchgroup=HWCodeDelimiterEnd end=/^```$/ contains=@HWIncludeCode_'
               \ .substitute(s:type,'\.','','g').' keepend'
   unlet! b:current_syntax
   let s:done_include[matchstr(s:type,'[^.]*')] = 1

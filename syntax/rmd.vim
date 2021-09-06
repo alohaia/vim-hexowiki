@@ -8,14 +8,14 @@ endif
 runtime syntax/markdown.vim
 unlet! b:current_syntax
 
-if exists('g:markdown_fenced_languages')
-  if !exists('g:rmd_fenced_languages')
-    let g:rmd_fenced_languages = deepcopy(g:markdown_fenced_languages)
-    let g:markdown_fenced_languages = []
-  endif
-else
-  let g:rmd_fenced_languages = ['r']
-endif
+" if exists('g:markdown_fenced_languages')
+"   if !exists('g:rmd_fenced_languages')
+"     let g:rmd_fenced_languages = deepcopy(g:markdown_fenced_languages)
+"     " let g:markdown_fenced_languages = []
+"   endif
+" else
+"   let g:rmd_fenced_languages = ['r']
+" endif
 
 " Now highlight chunks:
 syn include @HWIncludeCode_r syntax/r.vim
