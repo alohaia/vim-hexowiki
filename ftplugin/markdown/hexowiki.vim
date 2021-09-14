@@ -41,3 +41,9 @@ if g:hexowiki_use_imaps == 1
     inoremap <buffer><unique> <expr> 》 col('.') == 1 ? '> ' : '》'
     inoremap <buffer><unique> <expr> >  col('.') == 1 ? '> ' : '>'
 endif
+
+"-------------------------------------\ R Markdown /------------------------------------
+if &filetype == 'rmd' && g:hexowiki_rmd_auto_trans.enable
+    au BufWritePost <buffer> lua require'hexormd'.rmd_writepost()
+endif
+

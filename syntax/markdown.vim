@@ -16,11 +16,9 @@ syn iskeyword @,48-57,192-255,$,_
 syn sync fromstart
 
 "---------------------------------------\ Header /--------------------------------------
-syn region HWHeader contains=HWHeaderItem,HWHeaderList keepend
+syn include @HWIncludeYamlHeader syntax/yaml.vim
+syn region HWHeader contains=@HWIncludeYamlHeader keepend
     \ start='\%^---$' end='^---$'
-exec 'syn match HWHeaderItem +^\(' .. join(g:hexowiki_header_items, '\|') .. '\)+ contained'
-syn region HWHeaderList matchgroup=HWHeaderListDelimiter contained
-    \ start='^\s*-\s\+' end='$'
 
 "--------------------------------------\ Comment /--------------------------------------
 syn match HWComment '<!--.*-->'
@@ -54,10 +52,10 @@ unlet! s:type
 unlet! s:done_include
 
 "----------------------------------------\ Math /---------------------------------------
-syn include @HWIncludeCode_tex syntax/tex.vim
-syn region HWInlineMath matchgroup=HWMathDelimiter contains=@HWIncludeCode_tex keepend oneline concealends display
+syn include @HWIncludeMath syntax/tex.vim
+syn region HWInlineMath matchgroup=HWMathDelimiter contains=@HWIncludeMath keepend oneline concealends display
     \ start='[^$]*\zs\$\ze[^$]*' end='[^$]*\zs\$\ze[^$]*'
-syn region HWMathBlock contains=@HWIncludeCode_tex keepend concealends display
+syn region HWMathBlock contains=@HWIncludeMath keepend concealends display
     \ matchgroup=HWMathDelimiterStart start='^\s*\$\$\ze.*' matchgroup=HWMathDelimiterEnd end='\s*.*\zs\$\$$'
 
 syn cluster CHWInlineCM contains=HWInlineCode,HWInlineMath
@@ -217,8 +215,6 @@ syn region HWDefineContent matchgroup=HWDefineContentDelimiter contained keepend
 
 "---------------------------------------\ Header /--------------------------------------
 hi link HWHeader Define
-hi link HWHeaderItem Keyword
-hi link HWHeaderListDelimiter HWList
 
 "------------------------------\ Original link or image /------------------------------
 hi HWRawLink cterm=underline gui=underline

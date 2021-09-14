@@ -362,3 +362,5 @@ if g:hexowiki_auto_save
         au TextChanged *.md,*.markdown,*.Rmd silent update
     augroup END
 endif
+
+
